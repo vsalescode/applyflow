@@ -6,13 +6,23 @@ RUN npm ci
 FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build
+
+RUN apt-get update \
+  && apt-get install --yes --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --from=dependencies /app/node_modules ./node_modules
+COPY prisma ./prisma
 COPY public ./public
 COPY scripts ./scripts
 COPY src ./src
-COPY next-env.d.ts next.config.ts postcss.config.mjs tsconfig.json ./
+COPY next-env.d.ts next.config.ts postcss.config.mjs prisma.config.ts tsconfig.json ./
 COPY package.json package-lock.json ./
 RUN npm run build
+
+FROM builder AS migrator
+CMD ["npm", "run", "db:migrate:deploy"]
 
 FROM node:24-bookworm-slim AS runner
 WORKDIR /app

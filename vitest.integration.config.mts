@@ -9,11 +9,8 @@ export default defineConfig({
     },
   },
   test: {
-    clearMocks: true,
     environment: "node",
-    exclude: ["**/*.integration.test.ts", "node_modules/**"],
-    coverage: {
-      reporter: ["text", "html"],
-    },
+    fileParallelism: false,
+    include: ["src/**/*.integration.test.ts"],
   },
 });
