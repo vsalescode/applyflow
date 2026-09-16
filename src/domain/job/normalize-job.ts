@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { z } from "zod";
 
 import type { SearchResultItem } from "@/application/providers/search-provider";
@@ -22,10 +24,56 @@ export interface NormalizedJob {
   description?: string;
   location?: string;
   workArrangement: "UNKNOWN" | "REMOTE" | "HYBRID" | "ONSITE";
-  url: string;
+  originalUrl: string;
+  canonicalUrl: string;
   sourceDomain: string;
   publishedAt?: Date;
   publishedLabel?: string;
+}
+
+const trackingParameters = new Set([
+  "fbclid",
+  "gclid",
+  "msclkid",
+  "ref",
+  "referrer",
+]);
+
+export function canonicalizeJobUrl(value: string) {
+  const url = new URL(value);
+  if (url.protocol !== "http:" && url.protocol !== "https:")
+    throw new InvalidSearchResultError();
+  if (url.username || url.password) throw new InvalidSearchResultError();
+  url.hash = "";
+  url.hostname = url.hostname.toLowerCase();
+  for (const key of [...url.searchParams.keys()])
+    if (
+      key.toLowerCase().startsWith("utm_") ||
+      trackingParameters.has(key.toLowerCase())
+    )
+      url.searchParams.delete(key);
+  url.searchParams.sort();
+  if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
+  return url.toString();
+}
+
+function foldIdentity(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+export function createJobFingerprint(job: NormalizedJob) {
+  const identity =
+    job.company && job.location
+      ? ["semantic", job.title, job.company, job.location]
+          .map(foldIdentity)
+          .join("|")
+      : `url|${job.canonicalUrl}`;
+  return createHash("sha256").update(identity).digest("hex");
 }
 
 function normalizeWhitespace(value: string) {
@@ -53,9 +101,8 @@ function parsePublishedDate(value: string | undefined) {
 export function normalizeSearchResult(item: SearchResultItem): NormalizedJob {
   const parsed = resultSchema.safeParse(item);
   if (!parsed.success) throw new InvalidSearchResultError();
-  const url = new URL(parsed.data.url);
-  if (url.protocol !== "http:" && url.protocol !== "https:")
-    throw new InvalidSearchResultError();
+  const canonicalUrl = canonicalizeJobUrl(parsed.data.url);
+  const url = new URL(canonicalUrl);
   const title = normalizeWhitespace(parsed.data.title);
   const company = parsed.data.company
     ? normalizeWhitespace(parsed.data.company)
@@ -77,8 +124,9 @@ export function normalizeSearchResult(item: SearchResultItem): NormalizedJob {
     workArrangement: inferWorkArrangement(
       [title, description, location].filter(Boolean).join(" "),
     ),
-    url: url.toString(),
-    sourceDomain: url.hostname.toLowerCase(),
+    originalUrl: parsed.data.url,
+    canonicalUrl,
+    sourceDomain: url.hostname.replace(/^www\./, ""),
     publishedAt: parsePublishedDate(publishedLabel),
     publishedLabel,
   };
