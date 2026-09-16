@@ -3,8 +3,8 @@
 Sistema open source, self-hosted e single-user para descoberta inteligente de
 vagas e preparação de candidaturas.
 
-O projeto está no início do desenvolvimento. Esta etapa contém apenas a fundação
-técnica; busca, matching, autenticação e currículos serão adicionados
+O projeto está no início do desenvolvimento. A fundação técnica e a autenticação
+single-user já estão disponíveis; busca, matching e currículos serão adicionados
 incrementalmente.
 
 ## Requisitos
@@ -29,6 +29,16 @@ npm run dev
 ```
 
 A aplicação estará disponível em <http://localhost:3000>.
+
+## Primeiro acesso
+
+Ao abrir a aplicação pela primeira vez, acesse <http://localhost:3000/setup> e
+cadastre o único usuário da instalação. A senha deve ter entre 12 e 128
+caracteres. Depois da configuração inicial, novos cadastros são bloqueados e o
+acesso passa a ser feito em <http://localhost:3000/login>.
+
+O botão `Sair` do painel encerra a sessão atual. As sessões também expiram após
+sete dias e um novo login invalida sessões anteriores.
 
 ## Docker Compose
 
@@ -75,8 +85,9 @@ npm run db:studio
 - `db:migrate:deploy`: aplica migrations já versionadas em outros ambientes;
 - `db:studio`: abre a ferramenta de inspeção do Prisma.
 
-O modelo atual contém apenas o usuário principal da instalação. Credenciais e
-sessões serão adicionadas na etapa de autenticação.
+O modelo contém o usuário principal da instalação e suas sessões. A senha é
+armazenada somente como hash Argon2id; tokens de sessão também não são persistidos
+em texto puro.
 
 ## Health checks
 
