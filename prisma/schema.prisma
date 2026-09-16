@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(uuid()) @db.Uuid
+  installationKey String   @default("primary") @map("installation_key") @db.VarChar(32)
+  email           String   @unique @db.VarChar(320)
+  displayName     String?  @map("display_name") @db.VarChar(120)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([installationKey], map: "users_installation_key_key")
+  @@map("users")
+}

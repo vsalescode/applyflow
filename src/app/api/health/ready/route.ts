@@ -1,9 +1,13 @@
+import { checkDatabaseConnection } from "@/infrastructure/database/prisma";
 import { createReadinessPayload } from "@/server/health";
 
 export const dynamic = "force-dynamic";
 
-export function GET() {
-  const result = createReadinessPayload(process.env);
+export async function GET() {
+  const result = await createReadinessPayload(
+    process.env,
+    checkDatabaseConnection,
+  );
 
   return Response.json(result.payload, {
     status: result.status,

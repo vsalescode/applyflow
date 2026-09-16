@@ -37,7 +37,8 @@ docker compose up --build
 ```
 
 O Compose inicia a aplicação e o PostgreSQL. A integração da aplicação com o
-banco será implementada na Etapa 2.
+banco é configurada automaticamente e as migrations são aplicadas antes do
+servidor iniciar.
 
 Para encerrar os containers sem remover os dados:
 
@@ -52,16 +53,35 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm test
+npm run test:integration
 npm run build
 ```
+
+O teste de integração cria um PostgreSQL isolado na porta `5433`, aplica as
+migrations, executa os testes e remove o container e seus dados ao terminar.
+
+## Banco de dados
+
+Com o PostgreSQL configurado em `DATABASE_URL`:
+
+```powershell
+npm run db:generate
+npm run db:migrate:dev
+npm run db:migrate:deploy
+npm run db:studio
+```
+
+- `db:migrate:dev`: cria/aplica migrations durante o desenvolvimento;
+- `db:migrate:deploy`: aplica migrations já versionadas em outros ambientes;
+- `db:studio`: abre a ferramenta de inspeção do Prisma.
+
+O modelo atual contém apenas o usuário principal da instalação. Credenciais e
+sessões serão adicionadas na etapa de autenticação.
 
 ## Health checks
 
 - `GET /api/health/live`: confirma que o processo está respondendo;
-- `GET /api/health/ready`: valida a configuração necessária para operar.
-
-O readiness passará a verificar o PostgreSQL quando a persistência for integrada
-na Etapa 2.
+- `GET /api/health/ready`: valida a configuração e a conexão com PostgreSQL.
 
 ## Variáveis de ambiente
 
@@ -77,7 +97,9 @@ valores seguros para desenvolvimento.
 
 ```text
 src/app/            interface e endpoints HTTP
+src/infrastructure/ integrações técnicas, incluindo PostgreSQL
 src/server/         configuração e serviços server-side
+prisma/             schema e migrations versionadas
 docs/               documentação funcional e técnica
 public/             assets públicos
 ```
