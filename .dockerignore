@@ -2,6 +2,7 @@
 .gitignore
 .next
 coverage
+.data
 docs
 node_modules
 templates

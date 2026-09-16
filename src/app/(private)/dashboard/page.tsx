@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashboardPage() {
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 py-12">
@@ -16,6 +18,12 @@ export default function DashboardPage() {
         Sua instalação está protegida e pronta para receber o perfil
         profissional.
       </p>
+      <Link
+        className="mt-6 inline-flex rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+        href="/curriculos"
+      >
+        Enviar currículo mestre
+      </Link>
     </main>
   );
 }

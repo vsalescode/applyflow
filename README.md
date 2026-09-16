@@ -3,9 +3,9 @@
 Sistema open source, self-hosted e single-user para descoberta inteligente de
 vagas e preparação de candidaturas.
 
-O projeto está no início do desenvolvimento. A fundação técnica e a autenticação
-single-user já estão disponíveis; busca, matching e currículos serão adicionados
-incrementalmente.
+O projeto está no início do desenvolvimento. A fundação técnica, a autenticação
+single-user e o upload do currículo mestre já estão disponíveis; busca, matching
+e geração de currículos serão adicionados incrementalmente.
 
 ## Requisitos
 
@@ -39,6 +39,17 @@ acesso passa a ser feito em <http://localhost:3000/login>.
 
 O botão `Sair` do painel encerra a sessão atual. As sessões também expiram após
 sete dias e um novo login invalida sessões anteriores.
+
+## Currículo mestre
+
+Depois de entrar, abra `/curriculos` para enviar o currículo mestre. O formato
+inicial aceito é PDF com texto selecionável, até 5 MiB e 30 páginas. O sistema
+valida o conteúdo real, extrai o texto para revisão e preserva os uploads
+anteriores no histórico.
+
+Os arquivos ficam em armazenamento privado. No ambiente local, o diretório
+padrão é `.data/artifacts`; no Docker Compose, o volume `artifacts-data` preserva
+os arquivos entre reinicializações.
 
 ## Docker Compose
 
@@ -100,6 +111,7 @@ em texto puro.
 | ----------------- | ----------- | ----------------------------------------------------------- |
 | `APP_URL`         | sim         | URL pública da instalação                                   |
 | `DATABASE_URL`    | sim         | conexão com PostgreSQL                                      |
+| `ARTIFACTS_DIR`   | não         | diretório privado de uploads e artefatos                    |
 | `AI_PROVIDER`     | não         | `disabled`, `openai`, `gemini`, `anthropic` ou `openrouter` |
 | `AI_API_KEY`      | condicional | chave server-side quando o provider de IA é habilitado      |
 | `AI_MODEL`        | condicional | modelo usado pelo provider de IA                            |

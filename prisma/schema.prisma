@@ -16,9 +16,28 @@ model User {
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
   sessions        Session[]
+  resumes         Resume[]
 
   @@unique([installationKey], map: "users_installation_key_key")
   @@map("users")
+}
+
+model Resume {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  originalName  String   @map("original_name") @db.VarChar(255)
+  mediaType     String   @map("media_type") @db.VarChar(100)
+  sizeBytes     Int      @map("size_bytes")
+  checksum      String   @db.Char(64)
+  storageKey    String   @unique @map("storage_key") @db.VarChar(255)
+  extractedText String   @map("extracted_text") @db.Text
+  pageCount     Int      @map("page_count")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("resumes")
 }
 
 model Session {

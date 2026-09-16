@@ -5,12 +5,15 @@ services:
     environment:
       APP_URL: http://localhost:3000
       DATABASE_URL: postgresql://appyflow:appyflow@database:5432/appyflow
+      ARTIFACTS_DIR: /app/data/artifacts
     ports:
       - "3000:3000"
     depends_on:
       migrate:
         condition: service_completed_successfully
     restart: unless-stopped
+    volumes:
+      - artifacts-data:/app/data
 
   migrate:
     build:
@@ -40,3 +43,4 @@ services:
 
 volumes:
   postgres-data:
+  artifacts-data:
