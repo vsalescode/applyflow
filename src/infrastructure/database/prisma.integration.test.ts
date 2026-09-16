@@ -27,6 +27,7 @@ describe("persistência do usuário único", () => {
         id: randomUUID(),
         email: "owner@example.com",
         displayName: "Owner",
+        passwordHash: "not-a-real-hash",
       },
     });
 
@@ -41,12 +42,20 @@ describe("persistência do usuário único", () => {
 
   it("impede um segundo usuário principal", async () => {
     await prisma.user.create({
-      data: { id: randomUUID(), email: "first@example.com" },
+      data: {
+        id: randomUUID(),
+        email: "first@example.com",
+        passwordHash: "test",
+      },
     });
 
     await expect(
       prisma.user.create({
-        data: { id: randomUUID(), email: "second@example.com" },
+        data: {
+          id: randomUUID(),
+          email: "second@example.com",
+          passwordHash: "test",
+        },
       }),
     ).rejects.toThrow();
 
@@ -60,6 +69,7 @@ describe("persistência do usuário único", () => {
           id: randomUUID(),
           email: "secondary@example.com",
           installationKey: "secondary",
+          passwordHash: "test",
         },
       }),
     ).rejects.toThrow();

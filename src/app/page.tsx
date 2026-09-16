@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const foundations = [
   "Instalação privada e single-user",
   "Provedores configurados com suas próprias chaves",
@@ -18,6 +20,12 @@ export default function Home() {
           O AppyFlow transforma seu perfil profissional em pesquisas relevantes,
           análises explicáveis e currículos adaptados sem inventar experiências.
         </p>
+        <Link
+          className="mt-8 inline-flex rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+          href="/login"
+        >
+          Acessar instalação
+        </Link>
       </div>
 
       <ul className="mt-12 grid gap-4 sm:grid-cols-3">
@@ -32,8 +40,8 @@ export default function Home() {
       </ul>
 
       <p className="mt-12 text-sm text-slate-500">
-        Fundação técnica pronta. As funcionalidades serão entregues de forma
-        incremental.
+        Fundação técnica e acesso seguro prontos. As demais funcionalidades
+        serão entregues de forma incremental.
       </p>
     </main>
   );
