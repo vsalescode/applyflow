@@ -79,6 +79,12 @@ conjunto pequeno de consultas estruturadas. Todas são normalizadas, deduplicada
 por perfil e registradas para uso posterior; nenhuma busca externa é executada
 nesta etapa.
 
+O primeiro adapter de busca disponível é o Serper. Para habilitá-lo, configure
+`SEARCH_PROVIDER=serper` e `SEARCH_API_KEY`. O adapter usa timeout, repete uma vez
+somente em falhas transitórias, limita cada página a dez resultados e não expõe a
+chave em mensagens de erro. A execução e persistência das buscas serão conectadas
+ao fluxo de descoberta nas próximas etapas.
+
 ## Docker Compose
 
 ```powershell
@@ -146,9 +152,9 @@ em texto puro.
 | `SEARCH_PROVIDER` | não         | `disabled`, `serpapi` ou `serper`                           |
 | `SEARCH_API_KEY`  | condicional | chave server-side quando a busca é habilitada               |
 
-Os providers ficam desabilitados por padrão. Nesta etapa, a configuração e os
-contratos estão disponíveis, mas ainda não existem adapters que façam chamadas
-às APIs externas.
+Os providers ficam desabilitados por padrão. Os adapters disponíveis são OpenAI
+para interpretação e geração estruturada, e Serper para pesquisa. Outros nomes
+configuráveis permanecem reservados para adapters futuros.
 
 Nunca versione `.env` ou `.env.local`. O arquivo `.env.example` contém apenas
 valores seguros para desenvolvimento.
