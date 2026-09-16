@@ -70,6 +70,11 @@ enum WorkMode {
   ONSITE
 }
 
+enum SearchQueryOrigin {
+  DETERMINISTIC
+  AI
+}
+
 model CandidateProfile {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @unique @map("user_id") @db.Uuid
@@ -84,8 +89,25 @@ model CandidateProfile {
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   professionalFacts ProfessionalFact[]
   preference        Preference?
+  searchQueries     SearchQuery[]
 
   @@map("candidate_profiles")
+}
+
+model SearchQuery {
+  id          String            @id @default(uuid()) @db.Uuid
+  profileId   String            @map("profile_id") @db.Uuid
+  query       String            @db.VarChar(300)
+  normalized  String            @db.VarChar(300)
+  origin      SearchQueryOrigin
+  aiModel     String?           @map("ai_model") @db.VarChar(160)
+  aiRequestId String?           @map("ai_request_id") @db.VarChar(255)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  profile     CandidateProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, normalized])
+  @@index([profileId, createdAt])
+  @@map("search_queries")
 }
 
 model Preference {

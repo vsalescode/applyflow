@@ -71,6 +71,14 @@ trabalho, localizações, idiomas e tecnologias desejadas. Também é possível
 informar pretensão salarial e excluir empresas ou termos. Campos vazios representam
 preferências ainda não informadas e não devem eliminar vagas em etapas futuras.
 
+## Queries de busca
+
+Em `/queries`, o sistema gera consultas determinísticas usando o perfil e as
+preferências. Quando o provider de IA está habilitado, também pode sugerir um
+conjunto pequeno de consultas estruturadas. Todas são normalizadas, deduplicadas
+por perfil e registradas para uso posterior; nenhuma busca externa é executada
+nesta etapa.
+
 ## Docker Compose
 
 ```powershell
