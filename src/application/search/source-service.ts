@@ -1,7 +1,11 @@
 import { getPrismaClient } from "@/infrastructure/database/prisma";
+import { calculateSourceScore } from "@/domain/source/source-score";
 
-export function listDiscoveredSources(userId: string) {
-  return getPrismaClient().source.findMany({
+export async function listDiscoveredSources(
+  userId: string,
+  clock: () => Date = () => new Date(),
+) {
+  const sources = await getPrismaClient().source.findMany({
     where: { occurrences: { some: { job: { profile: { userId } } } } },
     include: {
       metricHistory: {
@@ -9,6 +13,17 @@ export function listDiscoveredSources(userId: string) {
         take: 10,
       },
     },
-    orderBy: [{ lastSeenAt: "desc" }, { domain: "asc" }],
+    orderBy: { domain: "asc" },
   });
+
+  return sources
+    .map((source) => ({
+      ...source,
+      score: calculateSourceScore(source, clock()),
+    }))
+    .sort(
+      (left, right) =>
+        right.score.value - left.score.value ||
+        left.domain.localeCompare(right.domain),
+    );
 }
