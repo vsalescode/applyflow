@@ -26,7 +26,11 @@ describe("health checks", () => {
         service: "appyflow",
         status: "ok",
         timestamp: "2026-09-16T12:00:00.000Z",
-        checks: { configuration: "ok", database: "ok" },
+        checks: {
+          configuration: "ok",
+          database: "ok",
+          providers: "skipped",
+        },
       },
       status: 200,
     });
@@ -42,7 +46,11 @@ describe("health checks", () => {
         service: "appyflow",
         status: "error",
         timestamp: "2026-09-16T12:00:00.000Z",
-        checks: { configuration: "error", database: "skipped" },
+        checks: {
+          configuration: "error",
+          database: "skipped",
+          providers: "skipped",
+        },
       },
       status: 503,
     });
@@ -63,9 +71,64 @@ describe("health checks", () => {
         service: "appyflow",
         status: "error",
         timestamp: "2026-09-16T12:00:00.000Z",
-        checks: { configuration: "ok", database: "error" },
+        checks: {
+          configuration: "ok",
+          database: "error",
+          providers: "skipped",
+        },
       },
       status: 503,
+    });
+  });
+
+  it("retorna 503 sem consultar o banco quando um provider está incompleto", async () => {
+    const probeDatabase = vi.fn(async () => undefined);
+
+    await expect(
+      createReadinessPayload(
+        { ...validEnvironment, AI_PROVIDER: "openai" },
+        probeDatabase,
+        clock,
+      ),
+    ).resolves.toEqual({
+      payload: {
+        service: "appyflow",
+        status: "error",
+        timestamp: "2026-09-16T12:00:00.000Z",
+        checks: {
+          configuration: "ok",
+          database: "skipped",
+          providers: "error",
+        },
+      },
+      status: 503,
+    });
+    expect(probeDatabase).not.toHaveBeenCalled();
+  });
+
+  it("indica providers configurados sem expor nomes ou credenciais", async () => {
+    await expect(
+      createReadinessPayload(
+        {
+          ...validEnvironment,
+          SEARCH_PROVIDER: "serper",
+          SEARCH_API_KEY: "search-secret",
+        },
+        async () => undefined,
+        clock,
+      ),
+    ).resolves.toEqual({
+      payload: {
+        service: "appyflow",
+        status: "ok",
+        timestamp: "2026-09-16T12:00:00.000Z",
+        checks: {
+          configuration: "ok",
+          database: "ok",
+          providers: "ok",
+        },
+      },
+      status: 200,
     });
   });
 });
