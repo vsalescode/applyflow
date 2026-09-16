@@ -85,6 +85,12 @@ somente em falhas transitórias, limita cada página a dez resultados e não exp
 chave em mensagens de erro. A execução e persistência das buscas serão conectadas
 ao fluxo de descoberta nas próximas etapas.
 
+Os resultados do contrato de busca podem ser convertidos para o modelo interno de
+vaga, com título, empresa, descrição, localização, modalidade, URL, fonte, data
+publicada e instante de descoberta. Campos ausentes continuam desconhecidos e
+datas relativas são preservadas sem conversão especulativa. Nesta etapa cada
+resultado permanece independente; a deduplicação será adicionada separadamente.
+
 ## Docker Compose
 
 ```powershell
