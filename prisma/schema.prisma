@@ -64,6 +64,12 @@ enum FactReviewStatus {
   REJECTED
 }
 
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
 model CandidateProfile {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @unique @map("user_id") @db.Uuid
@@ -77,8 +83,29 @@ model CandidateProfile {
   updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   professionalFacts ProfessionalFact[]
+  preference        Preference?
 
   @@map("candidate_profiles")
+}
+
+model Preference {
+  id                String           @id @default(uuid()) @db.Uuid
+  profileId         String           @unique @map("profile_id") @db.Uuid
+  desiredRoles      String[]         @default([]) @map("desired_roles")
+  seniorities       Seniority[]      @default([])
+  workModes         WorkMode[]       @default([]) @map("work_modes")
+  locations         String[]         @default([])
+  languages         String[]         @default([])
+  technologies      String[]         @default([])
+  salaryMinimum     Decimal?         @map("salary_minimum") @db.Decimal(12, 2)
+  salaryCurrency    String?          @map("salary_currency") @db.Char(3)
+  excludedCompanies String[]         @default([]) @map("excluded_companies")
+  excludedKeywords  String[]         @default([]) @map("excluded_keywords")
+  createdAt         DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  profile           CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
 }
 
 model ProfessionalFact {
