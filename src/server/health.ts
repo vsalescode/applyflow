@@ -1,4 +1,5 @@
 import { type Environment, parseServerEnv } from "@/server/config/env";
+import { parseProviderConfiguration } from "@/server/config/providers";
 
 type HealthStatus = "ok" | "error";
 type CheckStatus = HealthStatus | "skipped";
@@ -13,6 +14,7 @@ export interface ReadinessPayload extends LivenessPayload {
   checks: {
     configuration: CheckStatus;
     database: CheckStatus;
+    providers: CheckStatus;
   };
 }
 
@@ -43,7 +45,33 @@ export async function createReadinessPayload(
       payload: {
         ...base,
         status: "error",
-        checks: { configuration: "error", database: "skipped" },
+        checks: {
+          configuration: "error",
+          database: "skipped",
+          providers: "skipped",
+        },
+      },
+      status: 503,
+    };
+  }
+
+  let providers: CheckStatus;
+  try {
+    const providerConfiguration = parseProviderConfiguration(environment);
+    providers =
+      providerConfiguration.ai.enabled || providerConfiguration.search.enabled
+        ? "ok"
+        : "skipped";
+  } catch {
+    return {
+      payload: {
+        ...base,
+        status: "error",
+        checks: {
+          configuration: "ok",
+          database: "skipped",
+          providers: "error",
+        },
       },
       status: 503,
     };
@@ -55,7 +83,7 @@ export async function createReadinessPayload(
     return {
       payload: {
         ...base,
-        checks: { configuration: "ok", database: "ok" },
+        checks: { configuration: "ok", database: "ok", providers },
       },
       status: 200,
     };
@@ -64,7 +92,7 @@ export async function createReadinessPayload(
       payload: {
         ...base,
         status: "error",
-        checks: { configuration: "ok", database: "error" },
+        checks: { configuration: "ok", database: "error", providers },
       },
       status: 503,
     };
