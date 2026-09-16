@@ -1,6 +1,8 @@
 import type { ProviderHealth } from "./provider-health";
 
 export interface StructuredOutputSchema<Output> {
+  name: string;
+  jsonSchema: Record<string, unknown>;
   parse(value: unknown): Output;
 }
 
