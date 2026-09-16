@@ -64,6 +64,13 @@ Para habilitar a interpretação, configure `AI_PROVIDER=openai`, `AI_API_KEY` e
 `AI_MODEL`. A chamada usa saída estruturada e desativa o armazenamento da resposta
 no provedor. Outros nomes de provider permanecem reservados para adapters futuros.
 
+## Preferências profissionais
+
+Em `/preferencias`, o usuário pode registrar cargos, senioridades, modalidades de
+trabalho, localizações, idiomas e tecnologias desejadas. Também é possível
+informar pretensão salarial e excluir empresas ou termos. Campos vazios representam
+preferências ainda não informadas e não devem eliminar vagas em etapas futuras.
+
 ## Docker Compose
 
 ```powershell

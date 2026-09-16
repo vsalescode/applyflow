@@ -30,6 +30,12 @@ export default function DashboardPage() {
       >
         Editar perfil profissional
       </Link>
+      <Link
+        className="mt-6 ml-3 inline-flex rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold"
+        href="/preferencias"
+      >
+        Definir preferências
+      </Link>
     </main>
   );
 }
