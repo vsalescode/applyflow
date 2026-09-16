@@ -96,10 +96,19 @@ em texto puro.
 
 ## Variáveis de ambiente
 
-| Variável       | Obrigatória | Finalidade                                   |
-| -------------- | ----------- | -------------------------------------------- |
-| `APP_URL`      | sim         | URL pública da instalação                    |
-| `DATABASE_URL` | sim         | conexão PostgreSQL usada a partir da Etapa 2 |
+| Variável          | Obrigatória | Finalidade                                                  |
+| ----------------- | ----------- | ----------------------------------------------------------- |
+| `APP_URL`         | sim         | URL pública da instalação                                   |
+| `DATABASE_URL`    | sim         | conexão com PostgreSQL                                      |
+| `AI_PROVIDER`     | não         | `disabled`, `openai`, `gemini`, `anthropic` ou `openrouter` |
+| `AI_API_KEY`      | condicional | chave server-side quando o provider de IA é habilitado      |
+| `AI_MODEL`        | condicional | modelo usado pelo provider de IA                            |
+| `SEARCH_PROVIDER` | não         | `disabled`, `serpapi` ou `serper`                           |
+| `SEARCH_API_KEY`  | condicional | chave server-side quando a busca é habilitada               |
+
+Os providers ficam desabilitados por padrão. Nesta etapa, a configuração e os
+contratos estão disponíveis, mas ainda não existem adapters que façam chamadas
+às APIs externas.
 
 Nunca versione `.env` ou `.env.local`. O arquivo `.env.example` contém apenas
 valores seguros para desenvolvimento.
