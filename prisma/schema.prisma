@@ -92,10 +92,13 @@ model ProfessionalFact {
   endedAt        DateTime?            @map("ended_at") @db.Date
   sourceResumeId String?              @map("source_resume_id") @db.Uuid
   reviewStatus   FactReviewStatus     @default(CONFIRMED) @map("review_status")
+  evidenceQuote  String?              @map("evidence_quote") @db.Text
+  aiModel        String?              @map("ai_model") @db.VarChar(160)
+  aiRequestId    String?              @map("ai_request_id") @db.VarChar(255)
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
   profile        CandidateProfile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  sourceResume   Resume?              @relation(fields: [sourceResumeId], references: [id], onDelete: SetNull)
+  sourceResume   Resume?              @relation(fields: [sourceResumeId], references: [id], onDelete: Cascade)
 
   @@index([profileId, type])
   @@index([sourceResumeId])

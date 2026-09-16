@@ -56,7 +56,13 @@ os arquivos entre reinicializações.
 
 Em `/perfil`, o usuário registra título profissional, senioridade, localização,
 resumo, skills e experiências confirmadas. Nesta etapa os dados são informados
-manualmente; a interpretação do currículo com IA pertence à etapa seguinte.
+manualmente ou extraídos do currículo com o adapter inicial da OpenAI. Fatos
+extraídos ficam pendentes e exigem confirmação; cada um preserva uma citação
+literal do currículo como evidência.
+
+Para habilitar a interpretação, configure `AI_PROVIDER=openai`, `AI_API_KEY` e
+`AI_MODEL`. A chamada usa saída estruturada e desativa o armazenamento da resposta
+no provedor. Outros nomes de provider permanecem reservados para adapters futuros.
 
 ## Docker Compose
 
