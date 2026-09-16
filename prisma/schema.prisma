@@ -97,6 +97,7 @@ model CandidateProfile {
   professionalFacts ProfessionalFact[]
   preference        Preference?
   searchQueries     SearchQuery[]
+  jobs              Job[]
 
   @@map("candidate_profiles")
 }
@@ -111,7 +112,7 @@ model SearchQuery {
   aiRequestId String?           @map("ai_request_id") @db.VarChar(255)
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
   profile     CandidateProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  jobs        Job[]
+  occurrences JobOccurrence[]
 
   @@unique([profileId, normalized])
   @@index([profileId, createdAt])
@@ -119,35 +120,52 @@ model SearchQuery {
 }
 
 model Source {
-  id        String   @id @default(uuid()) @db.Uuid
-  provider  String   @db.VarChar(50)
-  domain    String   @db.VarChar(253)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  jobs      Job[]
+  id          String          @id @default(uuid()) @db.Uuid
+  provider    String          @db.VarChar(50)
+  domain      String          @db.VarChar(253)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  occurrences JobOccurrence[]
 
   @@unique([provider, domain])
   @@map("sources")
 }
 
 model Job {
-  id              String          @id @default(uuid()) @db.Uuid
-  searchQueryId   String          @map("search_query_id") @db.Uuid
-  sourceId        String          @map("source_id") @db.Uuid
-  title           String          @db.VarChar(300)
-  company         String?         @db.VarChar(200)
-  description     String?         @db.Text
-  location        String?         @db.VarChar(200)
-  workArrangement WorkArrangement @default(UNKNOWN) @map("work_arrangement")
-  url             String          @db.VarChar(2048)
-  publishedAt     DateTime?       @map("published_at") @db.Timestamptz(3)
-  publishedLabel  String?         @map("published_label") @db.VarChar(100)
-  discoveredAt    DateTime        @default(now()) @map("discovered_at") @db.Timestamptz(3)
-  searchQuery     SearchQuery     @relation(fields: [searchQueryId], references: [id], onDelete: Cascade)
-  source          Source          @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  id              String           @id @default(uuid()) @db.Uuid
+  profileId       String           @map("profile_id") @db.Uuid
+  fingerprint     String           @db.Char(64)
+  title           String           @db.VarChar(300)
+  company         String?          @db.VarChar(200)
+  description     String?          @db.Text
+  location        String?          @db.VarChar(200)
+  workArrangement WorkArrangement  @default(UNKNOWN) @map("work_arrangement")
+  publishedAt     DateTime?        @map("published_at") @db.Timestamptz(3)
+  discoveredAt    DateTime         @default(now()) @map("discovered_at") @db.Timestamptz(3)
+  profile         CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  occurrences     JobOccurrence[]
 
-  @@index([searchQueryId, discoveredAt])
-  @@index([sourceId])
+  @@unique([profileId, fingerprint])
+  @@index([profileId, discoveredAt])
   @@map("jobs")
+}
+
+model JobOccurrence {
+  id             String      @id @default(uuid()) @db.Uuid
+  jobId          String      @map("job_id") @db.Uuid
+  searchQueryId  String      @map("search_query_id") @db.Uuid
+  sourceId       String      @map("source_id") @db.Uuid
+  originalUrl    String      @map("original_url") @db.VarChar(2048)
+  canonicalUrl   String      @map("canonical_url") @db.VarChar(2048)
+  publishedLabel String?     @map("published_label") @db.VarChar(100)
+  discoveredAt   DateTime    @default(now()) @map("discovered_at") @db.Timestamptz(3)
+  job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  searchQuery    SearchQuery @relation(fields: [searchQueryId], references: [id], onDelete: Cascade)
+  source         Source      @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([searchQueryId, sourceId, canonicalUrl])
+  @@index([jobId])
+  @@index([sourceId])
+  @@map("job_occurrences")
 }
 
 model Preference {

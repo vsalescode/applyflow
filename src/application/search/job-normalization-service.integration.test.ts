@@ -17,11 +17,10 @@ afterAll(async () => {
 });
 
 async function createQuery() {
-  const userId = randomUUID();
   const profileId = randomUUID();
   await prisma.user.create({
     data: {
-      id: userId,
+      id: randomUUID(),
       email: `${randomUUID()}@example.com`,
       passwordHash: "not-used-in-this-test",
       candidateProfile: { create: { id: profileId } },
@@ -54,10 +53,7 @@ describe("job normalization service", () => {
           url: "https://jobs.example.com/1",
           publishedAt: "2026-09-15",
         },
-        {
-          title: "Software Engineer",
-          url: "https://jobs.example.com/2",
-        },
+        { title: "Software Engineer", url: "https://jobs.example.com/2" },
         { title: "Invalid", url: "file:///private/result" },
       ],
       () => discoveredAt,
@@ -71,17 +67,47 @@ describe("job normalization service", () => {
       company: "Example",
       location: "Remote - Brazil",
       workArrangement: "REMOTE",
-      url: "https://jobs.example.com/1",
       publishedAt: new Date("2026-09-15T00:00:00.000Z"),
       discoveredAt,
     });
     await expect(prisma.job.count()).resolves.toBe(2);
+    await expect(prisma.jobOccurrence.count()).resolves.toBe(2);
   });
 
-  it("não deduplica resultados nesta etapa", async () => {
+  it("deduplica URLs canônicas repetidas na mesma query e fonte", async () => {
     const query = await createQuery();
-    const item = { title: "Engineer", url: "https://example.com/job/1" };
-    await normalizeAndStoreSearchResults(query.id, "serper", [item, item]);
-    await expect(prisma.job.count()).resolves.toBe(2);
+    await normalizeAndStoreSearchResults(query.id, "serper", [
+      {
+        title: "Engineer",
+        url: "https://example.com/job/1?utm_source=google#apply",
+      },
+      { title: "Engineer", url: "https://example.com/job/1" },
+    ]);
+
+    await expect(prisma.job.count()).resolves.toBe(1);
+    await expect(prisma.jobOccurrence.count()).resolves.toBe(1);
+    await expect(prisma.jobOccurrence.findFirst()).resolves.toMatchObject({
+      originalUrl: "https://example.com/job/1?utm_source=google#apply",
+      canonicalUrl: "https://example.com/job/1",
+    });
+  });
+
+  it("une a mesma vaga entre fontes e preserva cada ocorrência", async () => {
+    const query = await createQuery();
+    const shared = {
+      title: "Backend Engineer",
+      company: "Example",
+      location: "São Paulo",
+    };
+    await normalizeAndStoreSearchResults(query.id, "serper", [
+      { ...shared, url: "https://jobs.example.com/123" },
+    ]);
+    await normalizeAndStoreSearchResults(query.id, "another-provider", [
+      { ...shared, url: "https://careers.example.org/vacancy/abc" },
+    ]);
+
+    await expect(prisma.job.count()).resolves.toBe(1);
+    await expect(prisma.source.count()).resolves.toBe(2);
+    await expect(prisma.jobOccurrence.count()).resolves.toBe(2);
   });
 });
