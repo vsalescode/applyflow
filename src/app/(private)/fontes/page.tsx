@@ -14,6 +14,12 @@ const sourceKinds = {
   SPECIALIZED_PORTAL: "Portal especializado",
 } as const;
 
+const scoreLevels = {
+  HIGH: "Alta",
+  MEDIUM: "Média",
+  LOW: "Baixa",
+} as const;
+
 export default async function SourcesPage() {
   const user = await getUserBySessionToken(await readSessionCookie());
   const sources = user ? await listDiscoveredSources(user.id) : [];
@@ -36,7 +42,13 @@ export default async function SourcesPage() {
             <li className="rounded-2xl border bg-white p-5" key={source.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-semibold">{source.domain}</h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold">{source.domain}</h2>
+                    <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800">
+                      {source.score.value}/100 ·{" "}
+                      {scoreLevels[source.score.level]}
+                    </span>
+                  </div>
                   <p className="text-sm text-slate-600">
                     {source.provider} · {sourceKinds[source.kind]}
                   </p>
@@ -50,6 +62,34 @@ export default async function SourcesPage() {
                 <Metric label="Vagas únicas" value={source.uniqueJobCount} />
                 <Metric label="Snapshots" value={source.metricHistory.length} />
               </dl>
+              <details className="mt-4 text-sm text-slate-600">
+                <summary className="cursor-pointer font-medium text-slate-800">
+                  Como a pontuação foi calculada
+                </summary>
+                <dl className="mt-3 grid gap-2 sm:grid-cols-4">
+                  <Metric
+                    label="Volume"
+                    value={source.score.breakdown.volume}
+                  />
+                  <Metric
+                    label="Baixa duplicação"
+                    value={source.score.breakdown.uniqueness}
+                  />
+                  <Metric
+                    label="Recência"
+                    value={source.score.breakdown.freshness}
+                  />
+                  <Metric
+                    label="Crescimento"
+                    value={source.score.breakdown.momentum}
+                  />
+                </dl>
+                <ul className="mt-3 list-disc space-y-1 pl-5">
+                  {source.score.reasons.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              </details>
             </li>
           ))}
         </ul>
