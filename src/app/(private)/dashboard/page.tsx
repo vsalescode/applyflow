@@ -42,6 +42,12 @@ export default function DashboardPage() {
       >
         Gerar queries de busca
       </Link>
+      <Link
+        className="mt-6 ml-3 inline-flex rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold"
+        href="/fontes"
+      >
+        Ver fontes descobertas
+      </Link>
     </main>
   );
 }

@@ -21,6 +21,8 @@ export async function normalizeAndStoreSearchResults(
   clock: () => Date = () => new Date(),
 ): Promise<NormalizationSummary> {
   if (!provider.trim()) throw new Error("Provider is required");
+  const providerName = provider.trim().toLowerCase();
+  const observedAt = clock();
   const valid: NormalizedJob[] = [];
   let rejected = 0;
   for (const item of items) {
@@ -38,21 +40,25 @@ export async function normalizeAndStoreSearchResults(
       where: { id: searchQueryId },
       select: { profileId: true },
     });
+    const touchedSourceIds = new Set<string>();
     for (const job of valid) {
       const source = await transaction.source.upsert({
         where: {
           provider_domain: {
-            provider: provider.trim(),
+            provider: providerName,
             domain: job.sourceDomain,
           },
         },
         create: {
           id: randomUUID(),
-          provider: provider.trim(),
+          provider: providerName,
           domain: job.sourceDomain,
+          firstSeenAt: observedAt,
+          lastSeenAt: observedAt,
         },
-        update: {},
+        update: { lastSeenAt: observedAt },
       });
+      touchedSourceIds.add(source.id);
       const fingerprint = createJobFingerprint(job);
       const storedJob = await transaction.job.upsert({
         where: {
@@ -71,7 +77,7 @@ export async function normalizeAndStoreSearchResults(
           location: job.location,
           workArrangement: job.workArrangement,
           publishedAt: job.publishedAt,
-          discoveredAt: clock(),
+          discoveredAt: observedAt,
         },
         update: {},
       });
@@ -91,9 +97,33 @@ export async function normalizeAndStoreSearchResults(
           originalUrl: job.originalUrl,
           canonicalUrl: job.canonicalUrl,
           publishedLabel: job.publishedLabel,
-          discoveredAt: clock(),
+          discoveredAt: observedAt,
         },
         update: {},
+      });
+    }
+    for (const sourceId of touchedSourceIds) {
+      const occurrenceCount = await transaction.jobOccurrence.count({
+        where: { sourceId },
+      });
+      const uniqueJobs = await transaction.jobOccurrence.findMany({
+        where: { sourceId },
+        distinct: ["jobId"],
+        select: { jobId: true },
+      });
+      const uniqueJobCount = uniqueJobs.length;
+      await transaction.source.update({
+        where: { id: sourceId },
+        data: { occurrenceCount, uniqueJobCount, lastSeenAt: observedAt },
+      });
+      await transaction.sourceMetricSnapshot.create({
+        data: {
+          id: randomUUID(),
+          sourceId,
+          occurrenceCount,
+          uniqueJobCount,
+          observedAt,
+        },
       });
     }
   });

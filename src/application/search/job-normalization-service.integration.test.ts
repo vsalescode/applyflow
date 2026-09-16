@@ -61,6 +61,16 @@ describe("job normalization service", () => {
 
     expect(summary).toEqual({ stored: 2, rejected: 1 });
     await expect(prisma.source.count()).resolves.toBe(1);
+    await expect(prisma.source.findFirst()).resolves.toMatchObject({
+      provider: "serper",
+      domain: "jobs.example.com",
+      kind: "UNKNOWN",
+      occurrenceCount: 2,
+      uniqueJobCount: 2,
+      firstSeenAt: discoveredAt,
+      lastSeenAt: discoveredAt,
+    });
+    await expect(prisma.sourceMetricSnapshot.count()).resolves.toBe(1);
     await expect(
       prisma.job.findFirst({ where: { title: "Backend Engineer" } }),
     ).resolves.toMatchObject({
@@ -72,6 +82,31 @@ describe("job normalization service", () => {
     });
     await expect(prisma.job.count()).resolves.toBe(2);
     await expect(prisma.jobOccurrence.count()).resolves.toBe(2);
+  });
+
+  it("mantém snapshots históricos mesmo quando a ocorrência já existe", async () => {
+    const query = await createQuery();
+    const item = { title: "Engineer", url: "https://example.com/job/1" };
+    await normalizeAndStoreSearchResults(
+      query.id,
+      "SERPER",
+      [item],
+      () => new Date("2026-09-16T10:00:00.000Z"),
+    );
+    await normalizeAndStoreSearchResults(
+      query.id,
+      "serper",
+      [item],
+      () => new Date("2026-09-17T10:00:00.000Z"),
+    );
+
+    await expect(prisma.source.findFirst()).resolves.toMatchObject({
+      occurrenceCount: 1,
+      uniqueJobCount: 1,
+      firstSeenAt: new Date("2026-09-16T10:00:00.000Z"),
+      lastSeenAt: new Date("2026-09-17T10:00:00.000Z"),
+    });
+    await expect(prisma.sourceMetricSnapshot.count()).resolves.toBe(2);
   });
 
   it("deduplica URLs canônicas repetidas na mesma query e fonte", async () => {
