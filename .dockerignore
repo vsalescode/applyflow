@@ -5,6 +5,7 @@ coverage
 docs
 node_modules
 templates
+compose.integration.yaml
 *.log
 .env*
 !.env.example

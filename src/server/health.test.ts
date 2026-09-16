@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { createLivenessPayload, createReadinessPayload } from "./health";
 
@@ -18,25 +18,52 @@ describe("health checks", () => {
     });
   });
 
-  it("considera a aplicação pronta quando a configuração é válida", () => {
-    expect(createReadinessPayload(validEnvironment, clock)).toEqual({
+  it("considera a aplicação pronta quando configuração e banco estão disponíveis", async () => {
+    await expect(
+      createReadinessPayload(validEnvironment, async () => undefined, clock),
+    ).resolves.toEqual({
       payload: {
         service: "appyflow",
         status: "ok",
         timestamp: "2026-09-16T12:00:00.000Z",
-        checks: { configuration: "ok" },
+        checks: { configuration: "ok", database: "ok" },
       },
       status: 200,
     });
   });
 
-  it("retorna 503 sem expor detalhes quando a configuração é inválida", () => {
-    expect(createReadinessPayload({}, clock)).toEqual({
+  it("retorna 503 sem consultar o banco quando a configuração é inválida", async () => {
+    const probeDatabase = vi.fn(async () => undefined);
+
+    await expect(
+      createReadinessPayload({}, probeDatabase, clock),
+    ).resolves.toEqual({
       payload: {
         service: "appyflow",
         status: "error",
         timestamp: "2026-09-16T12:00:00.000Z",
-        checks: { configuration: "error" },
+        checks: { configuration: "error", database: "skipped" },
+      },
+      status: 503,
+    });
+    expect(probeDatabase).not.toHaveBeenCalled();
+  });
+
+  it("retorna 503 quando o banco não está disponível", async () => {
+    await expect(
+      createReadinessPayload(
+        validEnvironment,
+        async () => {
+          throw new Error("database unavailable");
+        },
+        clock,
+      ),
+    ).resolves.toEqual({
+      payload: {
+        service: "appyflow",
+        status: "error",
+        timestamp: "2026-09-16T12:00:00.000Z",
+        checks: { configuration: "ok", database: "error" },
       },
       status: 503,
     });

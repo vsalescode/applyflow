@@ -8,9 +8,20 @@ services:
     ports:
       - "3000:3000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      target: migrator
+    environment:
+      DATABASE_URL: postgresql://appyflow:appyflow@database:5432/appyflow
+    depends_on:
       database:
         condition: service_healthy
-    restart: unless-stopped
+    restart: "no"
 
   database:
     image: postgres:17-alpine
