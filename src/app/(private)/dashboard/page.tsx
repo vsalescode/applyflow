@@ -24,6 +24,12 @@ export default function DashboardPage() {
       >
         Enviar currículo mestre
       </Link>
+      <Link
+        className="mt-6 ml-3 inline-flex rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold"
+        href="/perfil"
+      >
+        Editar perfil profissional
+      </Link>
     </main>
   );
 }
