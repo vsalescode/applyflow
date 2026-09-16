@@ -36,6 +36,18 @@ export default async function ProfilePage({
         Registre apenas informações verdadeiras e verificáveis.
       </p>
 
+      <form action="/api/profile/interpret" className="mt-6" method="post">
+        <button
+          className="rounded-lg border border-emerald-700 px-5 py-3 text-sm font-semibold text-emerald-800"
+          type="submit"
+        >
+          Interpretar currículo atual com IA
+        </button>
+        <p className="mt-2 text-xs text-slate-500">
+          Os fatos extraídos ficam pendentes até sua revisão.
+        </p>
+      </form>
+
       {query.sucesso ? (
         <p className="mt-5 text-sm text-emerald-700">Alterações salvas.</p>
       ) : null}
@@ -186,7 +198,7 @@ export default async function ProfilePage({
       </section>
 
       <section className="mt-10">
-        <h2 className="text-xl font-semibold">Fatos confirmados</h2>
+        <h2 className="text-xl font-semibold">Fatos profissionais</h2>
         {!profile?.professionalFacts.length ? (
           <p className="mt-4 text-slate-600">Nenhum fato registrado.</p>
         ) : (
@@ -197,6 +209,7 @@ export default async function ProfilePage({
                   <div>
                     <p className="text-xs font-semibold text-emerald-700">
                       {fact.type === "SKILL" ? "SKILL" : "EXPERIÊNCIA"}
+                      {` · ${fact.reviewStatus === "PENDING" ? "PENDENTE" : fact.reviewStatus === "REJECTED" ? "REJEITADO" : "CONFIRMADO"}`}
                     </p>
                     <h3 className="font-semibold">{fact.title}</h3>
                     {fact.organization ? (
@@ -218,6 +231,35 @@ export default async function ProfilePage({
                   <p className="mt-3 text-sm whitespace-pre-wrap text-slate-700">
                     {fact.description}
                   </p>
+                ) : null}
+                {fact.evidenceQuote ? (
+                  <blockquote className="mt-3 border-l-2 border-slate-300 pl-3 text-sm text-slate-600">
+                    Evidência: {fact.evidenceQuote}
+                  </blockquote>
+                ) : null}
+                {fact.reviewStatus === "PENDING" ? (
+                  <form
+                    action={`/api/profile/facts/${fact.id}/review`}
+                    className="mt-4 flex gap-3"
+                    method="post"
+                  >
+                    <button
+                      className="text-sm font-medium text-emerald-700"
+                      name="decision"
+                      type="submit"
+                      value="CONFIRMED"
+                    >
+                      Confirmar
+                    </button>
+                    <button
+                      className="text-sm font-medium text-red-700"
+                      name="decision"
+                      type="submit"
+                      value="REJECTED"
+                    >
+                      Rejeitar
+                    </button>
+                  </form>
                 ) : null}
               </li>
             ))}
