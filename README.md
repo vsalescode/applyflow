@@ -95,6 +95,11 @@ rastreamento e diferenças semânticas irrelevantes. Um fingerprint conservador
 une a mesma oportunidade por perfil quando existem sinais suficientes, enquanto
 `JobOccurrence` preserva cada query, fonte, URL original e instante de descoberta.
 
+Em `/fontes`, cada domínio descoberto apresenta provider, classificação, primeira
+e última observação, total de ocorrências e vagas únicas. Snapshots imutáveis
+preservam a evolução dessas métricas; a pontuação de qualidade será calculada em
+uma etapa posterior.
+
 ## Docker Compose
 
 ```powershell
