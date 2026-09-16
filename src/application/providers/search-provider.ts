@@ -14,6 +14,8 @@ export interface SearchResultItem {
   snippet?: string;
   displayedUrl?: string;
   publishedAt?: string;
+  company?: string;
+  location?: string;
 }
 
 export interface SearchResult {
