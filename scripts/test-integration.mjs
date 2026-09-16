@@ -32,7 +32,9 @@ function run(command, args, options = {}) {
 
 const composeArgs = ["compose", "-p", composeProject, "-f", composeFile];
 const testEnvironment = {
+  APP_URL: "http://localhost:3000",
   DATABASE_URL: databaseUrl,
+  NODE_ENV: "test",
   TEST_DATABASE_URL: databaseUrl,
 };
 
