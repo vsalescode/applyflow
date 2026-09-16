@@ -88,8 +88,12 @@ ao fluxo de descoberta nas próximas etapas.
 Os resultados do contrato de busca podem ser convertidos para o modelo interno de
 vaga, com título, empresa, descrição, localização, modalidade, URL, fonte, data
 publicada e instante de descoberta. Campos ausentes continuam desconhecidos e
-datas relativas são preservadas sem conversão especulativa. Nesta etapa cada
-resultado permanece independente; a deduplicação será adicionada separadamente.
+datas relativas são preservadas sem conversão especulativa.
+
+URLs de vagas são canonicalizadas removendo fragmentos, parâmetros conhecidos de
+rastreamento e diferenças semânticas irrelevantes. Um fingerprint conservador
+une a mesma oportunidade por perfil quando existem sinais suficientes, enquanto
+`JobOccurrence` preserva cada query, fonte, URL original e instante de descoberta.
 
 ## Docker Compose
 
