@@ -4,8 +4,9 @@ Sistema open source, self-hosted e single-user para descoberta inteligente de
 vagas e preparação de candidaturas.
 
 O projeto está no início do desenvolvimento. A fundação técnica, a autenticação
-single-user e o upload do currículo mestre já estão disponíveis; busca, matching
-e geração de currículos serão adicionados incrementalmente.
+single-user, o currículo mestre e a edição manual do perfil profissional já estão
+disponíveis; busca, matching e geração de currículos serão adicionados
+incrementalmente.
 
 ## Requisitos
 
@@ -50,6 +51,12 @@ anteriores no histórico.
 Os arquivos ficam em armazenamento privado. No ambiente local, o diretório
 padrão é `.data/artifacts`; no Docker Compose, o volume `artifacts-data` preserva
 os arquivos entre reinicializações.
+
+## Perfil profissional
+
+Em `/perfil`, o usuário registra título profissional, senioridade, localização,
+resumo, skills e experiências confirmadas. Nesta etapa os dados são informados
+manualmente; a interpretação do currículo com IA pertence à etapa seguinte.
 
 ## Docker Compose
 

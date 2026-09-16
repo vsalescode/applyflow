@@ -1,0 +1,229 @@
+import Link from "next/link";
+
+import { getCandidateProfile } from "@/application/profile/profile-service";
+import { getUserBySessionToken } from "@/application/auth/auth-service";
+import { readSessionCookie } from "@/infrastructure/auth/cookie";
+
+export const dynamic = "force-dynamic";
+
+const seniorities = [
+  ["UNSPECIFIED", "Não informada"],
+  ["INTERN", "Estágio"],
+  ["JUNIOR", "Júnior"],
+  ["MID_LEVEL", "Pleno"],
+  ["SENIOR", "Sênior"],
+  ["LEAD", "Liderança técnica"],
+  ["MANAGER", "Gestão"],
+  ["EXECUTIVE", "Executiva"],
+] as const;
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const user = await getUserBySessionToken(await readSessionCookie());
+  const profile = user ? await getCandidateProfile(user.id) : null;
+  const query = await searchParams;
+
+  return (
+    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12">
+      <Link className="text-sm font-medium text-emerald-700" href="/dashboard">
+        ← Voltar ao dashboard
+      </Link>
+      <h1 className="mt-6 text-3xl font-semibold">Perfil profissional</h1>
+      <p className="mt-2 text-slate-600">
+        Registre apenas informações verdadeiras e verificáveis.
+      </p>
+
+      {query.sucesso ? (
+        <p className="mt-5 text-sm text-emerald-700">Alterações salvas.</p>
+      ) : null}
+      {query.erro ? (
+        <p className="mt-5 text-sm text-red-700">
+          Revise os campos informados.
+        </p>
+      ) : null}
+
+      <form
+        action="/api/profile"
+        className="mt-8 grid gap-5 rounded-2xl border bg-white p-6 sm:grid-cols-2"
+        method="post"
+      >
+        <label className="text-sm font-medium sm:col-span-2">
+          Título profissional
+          <input
+            className="mt-2 block w-full rounded-lg border p-3"
+            defaultValue={profile?.headline ?? ""}
+            maxLength={160}
+            name="headline"
+          />
+        </label>
+        <label className="text-sm font-medium">
+          Senioridade
+          <select
+            className="mt-2 block w-full rounded-lg border p-3"
+            defaultValue={profile?.seniority ?? "UNSPECIFIED"}
+            name="seniority"
+          >
+            {seniorities.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-medium">
+          País (código de duas letras)
+          <input
+            className="mt-2 block w-full rounded-lg border p-3"
+            defaultValue={profile?.country ?? ""}
+            maxLength={2}
+            name="country"
+            placeholder="BR"
+          />
+        </label>
+        <label className="text-sm font-medium">
+          Cidade
+          <input
+            className="mt-2 block w-full rounded-lg border p-3"
+            defaultValue={profile?.city ?? ""}
+            maxLength={120}
+            name="city"
+          />
+        </label>
+        <label className="text-sm font-medium">
+          Estado ou região
+          <input
+            className="mt-2 block w-full rounded-lg border p-3"
+            defaultValue={profile?.region ?? ""}
+            maxLength={120}
+            name="region"
+          />
+        </label>
+        <label className="text-sm font-medium sm:col-span-2">
+          Resumo
+          <textarea
+            className="mt-2 block min-h-32 w-full rounded-lg border p-3"
+            defaultValue={profile?.summary ?? ""}
+            maxLength={4000}
+            name="summary"
+          />
+        </label>
+        <button
+          className="w-fit rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+          type="submit"
+        >
+          Salvar perfil
+        </button>
+      </form>
+
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold">Adicionar fato profissional</h2>
+        <form
+          action="/api/profile/facts"
+          className="mt-4 grid gap-5 rounded-2xl border bg-white p-6 sm:grid-cols-2"
+          method="post"
+        >
+          <label className="text-sm font-medium">
+            Tipo
+            <select
+              className="mt-2 block w-full rounded-lg border p-3"
+              name="type"
+            >
+              <option value="SKILL">Skill</option>
+              <option value="EXPERIENCE">Experiência</option>
+            </select>
+          </label>
+          <label className="text-sm font-medium">
+            Skill ou cargo
+            <input
+              className="mt-2 block w-full rounded-lg border p-3"
+              maxLength={160}
+              name="title"
+              required
+            />
+          </label>
+          <label className="text-sm font-medium">
+            Empresa (obrigatória para experiência)
+            <input
+              className="mt-2 block w-full rounded-lg border p-3"
+              maxLength={160}
+              name="organization"
+            />
+          </label>
+          <label className="text-sm font-medium">
+            Início
+            <input
+              className="mt-2 block w-full rounded-lg border p-3"
+              name="startedAt"
+              type="date"
+            />
+          </label>
+          <label className="text-sm font-medium">
+            Término
+            <input
+              className="mt-2 block w-full rounded-lg border p-3"
+              name="endedAt"
+              type="date"
+            />
+          </label>
+          <label className="text-sm font-medium sm:col-span-2">
+            Descrição ou evidência
+            <textarea
+              className="mt-2 block min-h-24 w-full rounded-lg border p-3"
+              maxLength={4000}
+              name="description"
+            />
+          </label>
+          <button
+            className="w-fit rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+            type="submit"
+          >
+            Adicionar fato
+          </button>
+        </form>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-xl font-semibold">Fatos confirmados</h2>
+        {!profile?.professionalFacts.length ? (
+          <p className="mt-4 text-slate-600">Nenhum fato registrado.</p>
+        ) : (
+          <ul className="mt-4 space-y-4">
+            {profile.professionalFacts.map((fact) => (
+              <li className="rounded-2xl border bg-white p-5" key={fact.id}>
+                <div className="flex justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-700">
+                      {fact.type === "SKILL" ? "SKILL" : "EXPERIÊNCIA"}
+                    </p>
+                    <h3 className="font-semibold">{fact.title}</h3>
+                    {fact.organization ? (
+                      <p className="text-sm text-slate-600">
+                        {fact.organization}
+                      </p>
+                    ) : null}
+                  </div>
+                  <form
+                    action={`/api/profile/facts/${fact.id}/delete`}
+                    method="post"
+                  >
+                    <button className="text-sm text-red-700" type="submit">
+                      Excluir
+                    </button>
+                  </form>
+                </div>
+                {fact.description ? (
+                  <p className="mt-3 text-sm whitespace-pre-wrap text-slate-700">
+                    {fact.description}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </main>
+  );
+}
