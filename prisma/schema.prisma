@@ -90,6 +90,12 @@ enum SourceKind {
   SPECIALIZED_PORTAL
 }
 
+enum MatchClassification {
+  HOT
+  WARM
+  COLD
+}
+
 model CandidateProfile {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @unique @map("user_id") @db.Uuid
@@ -169,10 +175,27 @@ model Job {
   discoveredAt    DateTime         @default(now()) @map("discovered_at") @db.Timestamptz(3)
   profile         CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   occurrences     JobOccurrence[]
+  match           JobMatch?
 
   @@unique([profileId, fingerprint])
   @@index([profileId, discoveredAt])
   @@map("jobs")
+}
+
+model JobMatch {
+  id              String              @id @default(uuid()) @db.Uuid
+  jobId           String              @unique @map("job_id") @db.Uuid
+  score           Int
+  classification  MatchClassification
+  evaluatedWeight Int                 @map("evaluated_weight")
+  matchedSkills   String[]            @default([]) @map("matched_skills")
+  breakdown       Json
+  reasons         String[]            @default([])
+  calculatedAt    DateTime            @map("calculated_at") @db.Timestamptz(3)
+  job             Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([classification, score])
+  @@map("job_matches")
 }
 
 model JobOccurrence {
