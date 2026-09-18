@@ -11,17 +11,20 @@ export async function POST(
   if (!hasTrustedOrigin(request)) return new Response(null, { status: 403 });
   const user = await getUserBySessionToken(await readSessionCookie());
   if (!user) return new Response(null, { status: 401 });
-  const provider = getAIProvider();
-  if (!provider)
-    return Response.json({ error: "AI disabled" }, { status: 503 });
+  const jobId = (await params).id;
   try {
-    const result = await analyzeJobMatchWithAI(
-      user.id,
-      (await params).id,
-      provider,
+    const provider = getAIProvider();
+    if (!provider) throw new Error("AI disabled");
+    await analyzeJobMatchWithAI(user.id, jobId, provider);
+    return NextResponse.redirect(
+      new URL(`/vagas/${jobId}?sucesso=analise`, request.url),
+      303,
     );
-    return Response.json(result);
   } catch {
-    return Response.json({ error: "Analysis failed" }, { status: 422 });
+    return NextResponse.redirect(
+      new URL(`/vagas/${jobId}?erro=analise`, request.url),
+      303,
+    );
   }
 }
+import { NextResponse } from "next/server";

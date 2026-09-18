@@ -1,0 +1,260 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { getUserBySessionToken } from "@/application/auth/auth-service";
+import { getJobDetails } from "@/application/search/job-details-service";
+import { readSessionCookie } from "@/infrastructure/auth/cookie";
+
+const workModes = {
+  UNKNOWN: "Não informada",
+  REMOTE: "Remota",
+  HYBRID: "Híbrida",
+  ONSITE: "Presencial",
+} as const;
+
+const matchLabels = {
+  COMPATIBLE: "Compatível",
+  PARTIAL: "Parcial",
+  INCOMPATIBLE: "Incompatível",
+  UNKNOWN: "Não determinada",
+} as const;
+
+export default async function JobDetailsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ sucesso?: string; erro?: string }>;
+}) {
+  const user = await getUserBySessionToken(await readSessionCookie());
+  const job = await getJobDetails(user!.id, (await params).id);
+  if (!job) notFound();
+  const feedback = await searchParams;
+  const latestOccurrence = job.occurrences[0];
+
+  return (
+    <main className="mx-auto min-h-screen max-w-5xl px-6 py-10">
+      <Link
+        className="text-sm font-semibold text-emerald-700"
+        href="/dashboard"
+      >
+        ← Voltar às oportunidades
+      </Link>
+      {feedback.sucesso === "analise" && (
+        <Notice tone="success">Análise com IA atualizada.</Notice>
+      )}
+      {feedback.erro === "analise" && (
+        <Notice tone="error">Não foi possível analisar esta vaga.</Notice>
+      )}
+
+      <header className="mt-6 rounded-2xl border bg-white p-6">
+        <div className="flex flex-wrap items-start justify-between gap-5">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {job.title}
+            </h1>
+            <p className="mt-2 text-lg text-slate-600">
+              {job.company ?? "Empresa não informada"}
+            </p>
+          </div>
+          {job.match ? (
+            <div className="rounded-2xl bg-slate-950 px-5 py-3 text-center text-white">
+              <strong className="block text-2xl">{job.match.score}%</strong>
+              <span className="text-xs text-slate-300">Match Score</span>
+            </div>
+          ) : (
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+              Nova · aguardando matching
+            </span>
+          )}
+        </div>
+        <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
+          <Metadata label="Modalidade" value={workModes[job.workArrangement]} />
+          <Metadata
+            label="Localização"
+            value={job.location ?? "Não informada"}
+          />
+          <Metadata
+            label="Publicação"
+            value={formatDate(job.publishedAt) ?? "Não informada"}
+          />
+        </dl>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {latestOccurrence && (
+            <a
+              className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+              href={latestOccurrence.canonicalUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Abrir vaga original ↗
+            </a>
+          )}
+          {job.match && (
+            <form action={`/api/jobs/${job.id}/match/analyze`} method="post">
+              <button
+                className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                type="submit"
+              >
+                {job.aiAnalysis
+                  ? "Atualizar análise com IA"
+                  : "Analisar com IA"}
+              </button>
+            </form>
+          )}
+        </div>
+      </header>
+
+      <Section title="Descrição">
+        <p className="text-sm leading-7 whitespace-pre-wrap text-slate-700">
+          {job.description ??
+            "A fonte não forneceu uma descrição para esta vaga."}
+        </p>
+      </Section>
+
+      {job.match && (
+        <Section title="Compatibilidade determinística">
+          <p className="text-sm text-slate-500">
+            Cobertura avaliada: {job.match.evaluatedWeight}/100
+          </p>
+          {job.match.matchedSkills.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {job.match.matchedSkills.map((skill) => (
+                <span
+                  className="rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-800"
+                  key={skill}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+          <ul className="mt-5 list-disc space-y-2 pl-5 text-sm text-slate-700">
+            {job.match.reasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {job.aiAnalysis && (
+        <Section title="Análise com IA">
+          <p className="text-sm leading-6 text-slate-700">
+            {job.aiAnalysis.explanation}
+          </p>
+          <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+            <Metadata
+              label="Senioridade"
+              value={matchLabels[job.aiAnalysis.seniorityMatch]}
+            />
+            <Metadata
+              label="Localização"
+              value={matchLabels[job.aiAnalysis.locationMatch]}
+            />
+          </dl>
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            <AnalysisList
+              title="Pontos fortes"
+              items={job.aiAnalysis.strengths}
+            />
+            <AnalysisList title="Gaps" items={job.aiAnalysis.gaps} />
+            <AnalysisList
+              title="Skills correspondentes"
+              items={job.aiAnalysis.matchedSkills}
+            />
+            <AnalysisList
+              title="Skills ausentes"
+              items={job.aiAnalysis.missingSkills}
+            />
+          </div>
+        </Section>
+      )}
+
+      <Section title="Origens encontradas">
+        <ul className="space-y-3">
+          {job.occurrences.map((occurrence) => (
+            <li
+              className="rounded-xl bg-slate-50 p-4 text-sm"
+              key={occurrence.id}
+            >
+              <div className="flex flex-wrap justify-between gap-2">
+                <strong>{occurrence.source.domain}</strong>
+                <span className="text-slate-500">
+                  {occurrence.discoveredAt.toLocaleString("pt-BR")}
+                </span>
+              </div>
+              <p className="mt-1 text-slate-600">
+                Query: {occurrence.searchQuery.query}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    </main>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mt-6 rounded-2xl border bg-white p-6">
+      <h2 className="mb-4 text-lg font-semibold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Metadata({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-slate-500">{label}</dt>
+      <dd className="mt-1 font-medium">{value}</dd>
+    </div>
+  );
+}
+
+function AnalysisList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">{title}</h3>
+      {items.length ? (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-sm text-slate-500">Nenhum item informado.</p>
+      )}
+    </div>
+  );
+}
+
+function Notice({
+  tone,
+  children,
+}: {
+  tone: "success" | "error";
+  children: React.ReactNode;
+}) {
+  return (
+    <p
+      className={`mt-5 rounded-xl p-3 text-sm ${
+        tone === "success"
+          ? "bg-emerald-50 text-emerald-800"
+          : "bg-rose-50 text-rose-800"
+      }`}
+    >
+      {children}
+    </p>
+  );
+}
+
+function formatDate(value: Date | null) {
+  return value?.toLocaleDateString("pt-BR");
+}

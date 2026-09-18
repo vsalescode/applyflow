@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   aiJobMatchOutputSchema,
+  parseStoredAIJobMatchAnalysis,
   validateGroundedSkills,
   type AIJobMatchAnalysis,
 } from "./ai-matching-service";
@@ -66,5 +67,12 @@ describe("AI job matching", () => {
     expect(() =>
       aiJobMatchOutputSchema.parse({ ...analysis, explanation: "" }),
     ).toThrow();
+  });
+
+  it("ignora análise persistida inválida", () => {
+    expect(parseStoredAIJobMatchAnalysis(analysis)).toEqual(analysis);
+    expect(
+      parseStoredAIJobMatchAnalysis({ explanation: "incompleta" }),
+    ).toBeNull();
   });
 });
