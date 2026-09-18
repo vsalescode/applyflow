@@ -192,6 +192,10 @@ model JobMatch {
   breakdown       Json
   reasons         String[]            @default([])
   calculatedAt    DateTime            @map("calculated_at") @db.Timestamptz(3)
+  aiAnalysis      Json?               @map("ai_analysis")
+  aiModel         String?             @map("ai_model") @db.VarChar(160)
+  aiRequestId     String?             @map("ai_request_id") @db.VarChar(255)
+  aiAnalyzedAt    DateTime?           @map("ai_analyzed_at") @db.Timestamptz(3)
   job             Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@index([classification, score])
