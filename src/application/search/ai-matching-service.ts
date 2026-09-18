@@ -27,6 +27,11 @@ export const aiJobMatchOutputSchema: StructuredOutputSchema<AIJobMatchAnalysis> 
     parse: (value) => aiJobMatchSchema.parse(value),
   };
 
+export function parseStoredAIJobMatchAnalysis(value: unknown) {
+  const parsed = aiJobMatchSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
 export async function analyzeJobMatchWithAI(
   userId: string,
   jobId: string,

@@ -137,7 +137,14 @@ export default async function DashboardPage({
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className="leading-snug font-semibold">{job.title}</h2>
+                    <h2 className="leading-snug font-semibold">
+                      <Link
+                        className="hover:text-emerald-700"
+                        href={`/vagas/${job.id}`}
+                      >
+                        {job.title}
+                      </Link>
+                    </h2>
                     <p className="mt-1 text-sm text-slate-600">
                       {job.company ?? "Empresa não informada"}
                     </p>
@@ -184,20 +191,16 @@ export default async function DashboardPage({
                   </div>
                 ) : null}
 
-                <div className="mt-5 flex items-center justify-between gap-3 text-sm">
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
                   <span className="text-slate-500">
                     Descoberta em {job.discoveredAt.toLocaleDateString("pt-BR")}
                   </span>
-                  {occurrence && (
-                    <a
-                      className="font-semibold text-emerald-700"
-                      href={occurrence.canonicalUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      Abrir vaga ↗
-                    </a>
-                  )}
+                  <Link
+                    className="font-semibold text-emerald-700"
+                    href={`/vagas/${job.id}`}
+                  >
+                    Ver detalhes →
+                  </Link>
                 </div>
               </li>
             );
