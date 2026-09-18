@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { calculateDeterministicMatch } from "@/domain/job/deterministic-match";
 import { evaluateQuickFilters } from "@/domain/job/quick-filter";
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { getPrismaClient } from "@/infrastructure/database/prisma";
 
 export async function calculateAndStoreDeterministicMatches(
@@ -74,7 +74,13 @@ export async function calculateAndStoreDeterministicMatches(
         jobId: job.id,
         ...matchData,
       },
-      update: matchData,
+      update: {
+        ...matchData,
+        aiAnalysis: Prisma.DbNull,
+        aiModel: null,
+        aiRequestId: null,
+        aiAnalyzedAt: null,
+      },
     });
     matched += 1;
   }
