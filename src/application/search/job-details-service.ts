@@ -7,6 +7,9 @@ export async function getJobDetails(userId: string, jobId: string) {
     where: { id: jobId, profile: { userId } },
     include: {
       match: true,
+      application: {
+        include: { history: { orderBy: { changedAt: "desc" } } },
+      },
       occurrences: {
         orderBy: { discoveredAt: "desc" },
         include: {
