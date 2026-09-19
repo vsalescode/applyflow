@@ -1,0 +1,292 @@
+
+\documentclass[a4paper,10pt]{article}
+
+% =========================
+% PACOTES
+% =========================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\usepackage{parskip}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{enumitem}
+
+% =========================
+% CONFIGURAÇÕES DO DOCUMENTO
+% =========================
+\geometry{
+    top=0.9cm,
+    bottom=0.9cm,
+    left=1.0cm,
+    right=1.0cm
+}
+
+\pagestyle{empty}
+
+\definecolor{linkblue}{RGB}{52,101,164}
+
+\hypersetup{
+    pdftitle={Curriculo Nome do Candidato},
+    pdfauthor={Nome do Candidato},
+    colorlinks=true,
+    linkcolor=linkblue,
+    urlcolor=linkblue,
+    citecolor=linkblue
+}
+
+\setcounter{secnumdepth}{0}
+
+\titleformat{\section}
+{\large\bfseries}
+{}
+{0em}
+{}
+[\titlerule\vspace{0.2ex}]
+
+\titlespacing*{\section}
+{0pt}
+{0.45em}
+{0.25em}
+
+\setlist[itemize]{
+    leftmargin=1.3em,
+    itemsep=0.08em,
+    topsep=0.12em,
+    parsep=0em,
+    partopsep=0em
+}
+
+\begin{document}
+
+% =========================
+% CABEÇALHO
+% =========================
+
+\begin{center}
+
+{\LARGE\textbf{Nome Completo do Candidato}}
+
+\vspace{-0.15cm}
+
+Cidade, Estado -- País
+\quad\textbullet\quad
++55 00 00000-0000
+
+\vspace{0.01cm}
+
+\href{mailto:email@exemplo.com}{email@exemplo.com}
+\quad\textbullet\quad
+\href{https://github.com/usuario}{github.com/usuario}
+\quad\textbullet\quad
+\href{https://www.linkedin.com/in/usuario}{linkedin.com/in/usuario}
+
+\vspace{0.03cm}
+
+\href{https://portfolio.exemplo.com}
+{portfolio.exemplo.com}
+
+\end{center}
+
+\vspace{-0.30cm}
+
+% =========================
+% EXPERIÊNCIA PROFISSIONAL
+% =========================
+
+\section{Experiência Profissional}
+
+\textbf{Empresa Exemplo}
+\hfill
+Remoto / Cidade, Estado
+
+\textit{Desenvolvedor de Software}
+\hfill
+\textit{Jan/2024 -- Atual}
+
+\begin{itemize}
+
+    \item Desenvolvi e mantive aplicações backend utilizando Java e Spring Boot, implementando APIs REST, regras de negócio, autenticação e integrações entre sistemas.
+
+    \item Modelei e implementei soluções utilizando bancos de dados relacionais e não relacionais.
+
+    \item Implementei autenticação e autorização utilizando JWT e controle de acesso baseado em perfis.
+
+    \item Desenvolvi integrações com APIs externas, serviços internos e sistemas de terceiros.
+
+    \item Otimizei consultas SQL e processos de acesso a dados, reduzindo gargalos de desempenho.
+
+    \item Desenvolvi testes automatizados para serviços, controllers e regras de negócio.
+
+    \item Participei de cerimônias ágeis, revisões de código e planejamento técnico das entregas.
+
+\end{itemize}
+
+\vspace{0.01cm}
+
+\textbf{Empresa Tecnologia XYZ}
+\hfill
+Cidade, Estado
+
+\textit{Desenvolvedor Full Stack}
+\hfill
+\textit{Mar/2022 -- Dez/2023}
+
+\begin{itemize}
+
+    \item Desenvolvi aplicações web responsivas utilizando React, TypeScript, HTML e CSS.
+
+    \item Implementei APIs REST utilizando Node.js e integração com PostgreSQL.
+
+    \item Desenvolvi funcionalidades de cadastro, autenticação, filtros, paginação e dashboards.
+
+    \item Realizei manutenção, correção de bugs, refatoração e melhoria de código legado.
+
+    \item Trabalhei com Git, pull requests, code review e integração contínua.
+
+\end{itemize}
+
+% =========================
+% PROJETOS
+% =========================
+
+\section{Projetos em Destaque}
+
+\textbf{Plataforma de Comunicação em Tempo Real}
+\hfill
+\href{https://github.com/usuario/projeto}{GitHub}
+
+\textit{TypeScript | React | Node.js | Socket.IO | WebRTC | PostgreSQL}
+
+\begin{itemize}
+
+    \item Desenvolvi uma plataforma de comunicação com canais de texto, chamadas de voz e presença de usuários em tempo real.
+
+    \item Implementei comunicação em tempo real utilizando Socket.IO e chamadas de áudio utilizando WebRTC.
+
+    \item Desenvolvi APIs REST para autenticação, gerenciamento de usuários, mensagens e canais.
+
+    \item Implementei persistência de dados utilizando PostgreSQL e ORM.
+
+\end{itemize}
+
+\vspace{0.01cm}
+
+\textbf{Sistema de Microsserviços para Gestão de Tarefas}
+\hfill
+\href{https://github.com/usuario/microsservicos}{GitHub}
+
+\textit{Java 17 | Spring Boot | PostgreSQL | MongoDB | Docker}
+
+\begin{itemize}
+
+    \item Desenvolvi uma arquitetura baseada em microsserviços utilizando Java e Spring Boot.
+
+    \item Implementei serviços independentes para autenticação, gerenciamento de tarefas e notificações.
+
+    \item Desenvolvi comunicação entre serviços utilizando APIs REST e clientes HTTP declarativos.
+
+    \item Utilizei PostgreSQL e MongoDB para diferentes necessidades de persistência.
+
+    \item Documentei as APIs utilizando Swagger/OpenAPI e configurei os serviços para execução com Docker.
+
+\end{itemize}
+
+% =========================
+% COMPETÊNCIAS TÉCNICAS
+% =========================
+
+\section{Competências Técnicas}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{Linguagens:}
+    Java, TypeScript, JavaScript, Python e SQL.
+
+    \item \textbf{Backend:}
+    Spring Boot, Node.js, Fastify, Express, APIs REST, JWT e microsserviços.
+
+    \item \textbf{Arquitetura \& Boas Práticas:}
+    Programação Orientada a Objetos, SOLID, Clean Code, Design Patterns e Arquitetura Hexagonal.
+
+    \item \textbf{Frontend:}
+    React, Angular, HTML, CSS e Tailwind CSS.
+
+    \item \textbf{Bancos de Dados:}
+    PostgreSQL, MySQL, MongoDB, Redis, JPA/Hibernate e Prisma.
+
+    \item \textbf{Tempo Real \& Integrações:}
+    WebSocket, Socket.IO, WebRTC, Webhooks e integrações com APIs.
+
+    \item \textbf{Testes:}
+    JUnit, Mockito, Jest, Vitest, testes unitários e testes de integração.
+
+    \item \textbf{DevOps \& Ferramentas:}
+    Git, GitHub, Docker, Maven, CI/CD, GitHub Actions e Postman.
+
+    \item \textbf{Metodologias Ágeis:}
+    Scrum e Kanban.
+
+\end{itemize}
+
+% =========================
+% FORMAÇÃO ACADÊMICA
+% =========================
+
+\section{Formação Acadêmica}
+
+\textbf{Universidade Exemplo}
+\hfill
+Cidade, Estado -- Brasil
+
+\textit{Bacharelado em Engenharia de Software}
+\hfill
+\textit{Conclusão prevista: Dez/2028}
+
+% =========================
+% CURSOS
+% =========================
+
+\section{Cursos Complementares}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{Java e Spring Boot -- Plataforma de Cursos}
+    \hfill
+    Concluído
+
+    \item \textbf{Desenvolvimento Frontend com React -- Plataforma de Cursos}
+    \hfill
+    Concluído
+
+    \item \textbf{Banco de Dados SQL e NoSQL -- Plataforma de Cursos}
+    \hfill
+    Concluído
+
+    \item \textbf{Docker e DevOps -- Plataforma de Cursos}
+    \hfill
+    Em andamento
+
+\end{itemize}
+
+% =========================
+% IDIOMAS
+% =========================
+
+\section{Idiomas}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{Português:} Nativo
+
+    \item \textbf{Inglês:} Intermediário
+
+    \item \textbf{Espanhol:} Básico
+
+\end{itemize}
+
+\end{document}
+
