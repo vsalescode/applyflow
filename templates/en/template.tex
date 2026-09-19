@@ -1,0 +1,291 @@
+\documentclass[a4paper,10pt]{article}
+
+% =========================
+% PACKAGES
+% =========================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{parskip}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{enumitem}
+
+% =========================
+% DOCUMENT SETTINGS
+% =========================
+\geometry{
+    top=0.9cm,
+    bottom=0.9cm,
+    left=1.0cm,
+    right=1.0cm
+}
+
+\pagestyle{empty}
+
+\definecolor{linkblue}{RGB}{52,101,164}
+
+\hypersetup{
+    pdftitle={Resume Full Name},
+    pdfauthor={Full Name},
+    colorlinks=true,
+    linkcolor=linkblue,
+    urlcolor=linkblue,
+    citecolor=linkblue
+}
+
+\setcounter{secnumdepth}{0}
+
+\titleformat{\section}
+{\large\bfseries}
+{}
+{0em}
+{}
+[\titlerule\vspace{0.2ex}]
+
+\titlespacing*{\section}
+{0pt}
+{0.45em}
+{0.25em}
+
+\setlist[itemize]{
+    leftmargin=1.3em,
+    itemsep=0.08em,
+    topsep=0.12em,
+    parsep=0em,
+    partopsep=0em
+}
+
+\begin{document}
+
+% =========================
+% HEADER
+% =========================
+
+\begin{center}
+
+{\LARGE\textbf{Full Name}}
+
+\vspace{-0.15cm}
+
+City, State -- Country
+\quad\textbullet\quad
++1 000 000 0000
+
+\vspace{0.01cm}
+
+\href{mailto:email@example.com}{email@example.com}
+\quad\textbullet\quad
+\href{https://github.com/username}{github.com/username}
+\quad\textbullet\quad
+\href{https://www.linkedin.com/in/username}{linkedin.com/in/username}
+
+\vspace{0.03cm}
+
+\href{https://portfolio.example.com}
+{portfolio.example.com}
+
+\end{center}
+
+\vspace{-0.30cm}
+
+% =========================
+% PROFESSIONAL EXPERIENCE
+% =========================
+
+\section{Professional Experience}
+
+\textbf{Example Company}
+\hfill
+Remote / City, State
+
+\textit{Software Developer}
+\hfill
+\textit{Jan/2024 -- Present}
+
+\begin{itemize}
+
+    \item Developed and maintained backend applications using Java and Spring Boot, implementing REST APIs, business rules, authentication, and system integrations.
+
+    \item Designed and implemented solutions using relational and non-relational databases.
+
+    \item Implemented authentication and authorization using JWT and role-based access control.
+
+    \item Developed integrations with external APIs, internal services, and third-party systems.
+
+    \item Optimized SQL queries and data access processes to reduce performance bottlenecks.
+
+    \item Developed automated tests for services, controllers, and business rules.
+
+    \item Participated in agile ceremonies, code reviews, and technical planning activities.
+
+\end{itemize}
+
+\vspace{0.01cm}
+
+\textbf{XYZ Technology Company}
+\hfill
+City, State
+
+\textit{Full Stack Developer}
+\hfill
+\textit{Mar/2022 -- Dec/2023}
+
+\begin{itemize}
+
+    \item Developed responsive web applications using React, TypeScript, HTML, and CSS.
+
+    \item Implemented REST APIs using Node.js with PostgreSQL integration.
+
+    \item Developed features such as user registration, authentication, filters, pagination, and dashboards.
+
+    \item Performed maintenance, bug fixing, refactoring, and improvements to legacy codebases.
+
+    \item Worked with Git, pull requests, code reviews, and continuous integration workflows.
+
+\end{itemize}
+
+% =========================
+% PROJECTS
+% =========================
+
+\section{Featured Projects}
+
+\textbf{Real-Time Communication Platform}
+\hfill
+\href{https://github.com/username/project}{GitHub}
+
+\textit{TypeScript | React | Node.js | Socket.IO | WebRTC | PostgreSQL}
+
+\begin{itemize}
+
+    \item Developed a communication platform featuring text channels, voice calls, and real-time user presence.
+
+    \item Implemented real-time communication using Socket.IO and audio calls using WebRTC.
+
+    \item Developed REST APIs for authentication, user management, messages, and channels.
+
+    \item Implemented data persistence using PostgreSQL and an ORM.
+
+\end{itemize}
+
+\vspace{0.01cm}
+
+\textbf{Task Management Microservices System}
+\hfill
+\href{https://github.com/username/microservices}{GitHub}
+
+\textit{Java 17 | Spring Boot | PostgreSQL | MongoDB | Docker}
+
+\begin{itemize}
+
+    \item Developed a microservices-based architecture using Java and Spring Boot.
+
+    \item Implemented independent services for authentication, task management, and notifications.
+
+    \item Developed service-to-service communication using REST APIs and declarative HTTP clients.
+
+    \item Used PostgreSQL and MongoDB for different persistence requirements.
+
+    \item Documented APIs using Swagger/OpenAPI and configured the services for execution with Docker.
+
+\end{itemize}
+
+% =========================
+% TECHNICAL SKILLS
+% =========================
+
+\section{Technical Skills}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{Programming Languages:}
+    Java, TypeScript, JavaScript, Python, and SQL.
+
+    \item \textbf{Backend:}
+    Spring Boot, Node.js, Fastify, Express, REST APIs, JWT, and Microservices.
+
+    \item \textbf{Architecture \& Best Practices:}
+    Object-Oriented Programming, SOLID, Clean Code, Design Patterns, and Hexagonal Architecture.
+
+    \item \textbf{Frontend:}
+    React, Angular, HTML, CSS, and Tailwind CSS.
+
+    \item \textbf{Databases:}
+    PostgreSQL, MySQL, MongoDB, Redis, JPA/Hibernate, and Prisma.
+
+    \item \textbf{Real-Time \& Integrations:}
+    WebSocket, Socket.IO, WebRTC, Webhooks, and API integrations.
+
+    \item \textbf{Testing:}
+    JUnit, Mockito, Jest, Vitest, Unit Testing, and Integration Testing.
+
+    \item \textbf{DevOps \& Tools:}
+    Git, GitHub, Docker, Maven, CI/CD, GitHub Actions, and Postman.
+
+    \item \textbf{Agile Methodologies:}
+    Scrum and Kanban.
+
+\end{itemize}
+
+% =========================
+% EDUCATION
+% =========================
+
+\section{Education}
+
+\textbf{Example University}
+\hfill
+City, State -- Country
+
+\textit{Bachelor's Degree in Software Engineering}
+\hfill
+\textit{Expected Graduation: Dec/2028}
+
+% =========================
+% COURSES
+% =========================
+
+\section{Additional Courses}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{Java and Spring Boot -- Learning Platform}
+    \hfill
+    Completed
+
+    \item \textbf{Frontend Development with React -- Learning Platform}
+    \hfill
+    Completed
+
+    \item \textbf{SQL and NoSQL Databases -- Learning Platform}
+    \hfill
+    Completed
+
+    \item \textbf{Docker and DevOps -- Learning Platform}
+    \hfill
+    In Progress
+
+\end{itemize}
+
+% =========================
+% LANGUAGES
+% =========================
+
+\section{Languages}
+
+\begin{itemize}[itemsep=0.03em, topsep=0.08em]
+
+    \item \textbf{English:} Native / Fluent
+
+    \item \textbf{Portuguese:} Intermediate
+
+    \item \textbf{Spanish:} Basic
+
+\end{itemize}
+
+\end{document}
+

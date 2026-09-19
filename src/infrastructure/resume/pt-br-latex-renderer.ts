@@ -3,7 +3,7 @@ import {
   type ResumeContent,
 } from "@/domain/resume/resume-content";
 
-const sectionOrder = [
+const ptBrSections = [
   "Experiência Profissional",
   "Projetos em Destaque",
   "Competências Técnicas",
@@ -12,16 +12,65 @@ const sectionOrder = [
   "Idiomas",
 ] as const;
 
+export interface LatexRendererLabels {
+  language: ResumeContent["language"];
+  babel: string;
+  documentTitle: string;
+  sections: readonly [string, string, string, string, string, string];
+  current: string;
+  expectedCompletion: string;
+  completed: string;
+  inProgress: string;
+  link: string;
+  months: readonly string[];
+}
+
+const ptBrLabels: LatexRendererLabels = {
+  language: "PT_BR",
+  babel: "brazil",
+  documentTitle: "Currículo",
+  sections: ptBrSections,
+  current: "Atual",
+  expectedCompletion: "Conclusão prevista: ",
+  completed: "Concluído",
+  inProgress: "Em andamento",
+  link: "Link",
+  months: [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ],
+};
+
 export function renderPtBrResume(template: string, value: unknown) {
+  return renderResumeWithTemplate(template, value, ptBrLabels);
+}
+
+export function renderResumeWithTemplate(
+  template: string,
+  value: unknown,
+  labels: LatexRendererLabels,
+) {
   const content = parseResumeContent(value);
-  if (content.language !== "PT_BR")
-    throw new Error("O renderer PT-BR exige conteúdo PT_BR.");
-  assertTemplateStructure(template);
+  if (content.language !== labels.language)
+    throw new Error(
+      `O renderer ${labels.language} exige conteúdo ${labels.language}.`,
+    );
+  assertTemplateStructure(template, labels);
 
   let document = template
     .replace(
       /pdftitle=\{[^}]*\}/,
-      `pdftitle={${escapeLatex(`Currículo ${content.personalInfo.fullName}`)}}`,
+      `pdftitle={${escapeLatex(`${labels.documentTitle} ${content.personalInfo.fullName}`)}}`,
     )
     .replace(
       /pdfauthor=\{[^}]*\}/,
@@ -32,18 +81,18 @@ export function renderPtBrResume(template: string, value: unknown) {
       renderHeader(content.personalInfo),
     );
   const bodies = [
-    renderExperiences(content.experiences),
-    renderProjects(content.projects),
+    renderExperiences(content.experiences, labels),
+    renderProjects(content.projects, labels),
     renderSkillGroups(content.skillGroups),
-    renderEducation(content.education),
-    renderCourses(content.courses),
+    renderEducation(content.education, labels),
+    renderCourses(content.courses, labels),
     renderLanguages(content.languages),
   ];
-  for (let index = 0; index < sectionOrder.length; index += 1)
+  for (let index = 0; index < labels.sections.length; index += 1)
     document = replaceSection(
       document,
-      sectionOrder[index],
-      sectionOrder[index + 1],
+      labels.sections[index],
+      labels.sections[index + 1],
       bodies[index],
     );
   return document;
@@ -67,15 +116,20 @@ export function escapeLatex(value: string) {
     .join("");
 }
 
-function assertTemplateStructure(template: string) {
-  if (!template.includes("\\usepackage[brazil]{babel}"))
-    throw new Error("Template PT-BR inválido: configuração de idioma ausente.");
+function assertTemplateStructure(
+  template: string,
+  labels: LatexRendererLabels,
+) {
+  if (!template.includes(`\\usepackage[${labels.babel}]{babel}`))
+    throw new Error(
+      `Template ${labels.language} inválido: configuração de idioma ausente.`,
+    );
   if (
     !template.includes("\\begin{center}") ||
     !template.includes("\\end{document}")
   )
     throw new Error("Template PT-BR inválido: estrutura principal ausente.");
-  for (const section of sectionOrder)
+  for (const section of labels.sections)
     if (!template.includes(`\\section{${section}}`))
       throw new Error(`Template PT-BR inválido: seção ${section} ausente.`);
 }
@@ -108,13 +162,16 @@ function renderHeader(info: ResumeContent["personalInfo"]) {
     .join("\n");
 }
 
-function renderExperiences(items: ResumeContent["experiences"]) {
+function renderExperiences(
+  items: ResumeContent["experiences"],
+  labels: LatexRendererLabels,
+) {
   return items
     .map((item) =>
       [
         `\\textbf{${escapeLatex(item.company)}}${right(item.location)}`,
         "",
-        `\\textit{${escapeLatex(item.role)}}${right(formatPeriod(item.period))}`,
+        `\\textit{${escapeLatex(item.role)}}${right(formatPeriod(item.period, labels))}`,
         "",
         renderBullets(item.bullets.map((bullet) => bullet.text)),
       ].join("\n"),
@@ -122,11 +179,14 @@ function renderExperiences(items: ResumeContent["experiences"]) {
     .join("\n\n\\vspace{0.01cm}\n\n");
 }
 
-function renderProjects(items: ResumeContent["projects"]) {
+function renderProjects(
+  items: ResumeContent["projects"],
+  labels: LatexRendererLabels,
+) {
   return items
     .map((item) => {
       const link = item.url
-        ? `\\href{${escapeLatex(item.url)}}{${escapeLatex(item.urlLabel ?? "Link")}}`
+        ? `\\href{${escapeLatex(item.url)}}{${escapeLatex(item.urlLabel ?? labels.link)}}`
         : undefined;
       return [
         `\\textbf{${escapeLatex(item.name)}}${right(link)}`,
@@ -153,10 +213,13 @@ function renderSkillGroups(groups: ResumeContent["skillGroups"]) {
   );
 }
 
-function renderEducation(items: ResumeContent["education"]) {
+function renderEducation(
+  items: ResumeContent["education"],
+  labels: LatexRendererLabels,
+) {
   return items
     .map((item) => {
-      const period = `${item.expectedCompletion ? "Conclusão prevista: " : ""}${formatPeriod(item.period)}`;
+      const period = `${item.expectedCompletion ? labels.expectedCompletion : ""}${formatPeriod(item.period, labels)}`;
       return [
         `\\textbf{${escapeLatex(item.institution)}}${right(item.location)}`,
         "",
@@ -166,12 +229,16 @@ function renderEducation(items: ResumeContent["education"]) {
     .join("\n\n\\vspace{0.01cm}\n\n");
 }
 
-function renderCourses(items: ResumeContent["courses"]) {
+function renderCourses(
+  items: ResumeContent["courses"],
+  labels: LatexRendererLabels,
+) {
   if (!items.length) return "";
   return renderBullets(
     items.map((item) => {
       const title = [item.name, item.provider].filter(Boolean).join(" -- ");
-      const status = item.status === "COMPLETED" ? "Concluído" : "Em andamento";
+      const status =
+        item.status === "COMPLETED" ? labels.completed : labels.inProgress;
       return `\\textbf{${escapeLatex(title)}}${right(status)}`;
     }),
     false,
@@ -223,31 +290,22 @@ function escapeUnlessLatex(value: string) {
   return value.startsWith("\\") ? value : escapeLatex(value);
 }
 
-function formatPeriod(period: ResumeContent["experiences"][number]["period"]) {
-  const start = period.start ? formatMonth(period.start) : undefined;
+function formatPeriod(
+  period: ResumeContent["experiences"][number]["period"],
+  labels: LatexRendererLabels,
+) {
+  const start = period.start
+    ? formatMonth(period.start, labels.months)
+    : undefined;
   const end = period.ongoing
-    ? "Atual"
+    ? labels.current
     : period.end
-      ? formatMonth(period.end)
+      ? formatMonth(period.end, labels.months)
       : undefined;
   return [start, end].filter(Boolean).join(" -- ");
 }
 
-function formatMonth(value: string) {
+function formatMonth(value: string, names: readonly string[]) {
   const [year, month] = value.split("-");
-  const names = [
-    "Jan",
-    "Fev",
-    "Mar",
-    "Abr",
-    "Mai",
-    "Jun",
-    "Jul",
-    "Ago",
-    "Set",
-    "Out",
-    "Nov",
-    "Dez",
-  ];
   return `${names[Number(month) - 1]}/${year}`;
 }

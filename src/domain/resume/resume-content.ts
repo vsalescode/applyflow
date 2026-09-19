@@ -133,3 +133,37 @@ export function createResumePdfFileName(fullName: string) {
     throw new Error("Nome inválido para o arquivo do currículo.");
   return `CV_${normalizedName}.pdf`;
 }
+
+export function assertEquivalentResumeFacts(
+  first: ResumeContent,
+  second: ResumeContent,
+) {
+  const firstIds = collectFactIds(first);
+  const secondIds = collectFactIds(second);
+  if (
+    firstIds.length !== secondIds.length ||
+    firstIds.some((id, index) => id !== secondIds[index])
+  )
+    throw new Error("As versões do currículo não representam os mesmos fatos.");
+}
+
+function collectFactIds(content: ResumeContent) {
+  return [
+    ...content.experiences.flatMap((item) => [
+      item.factId,
+      ...item.bullets.flatMap((bullet) => bullet.evidenceFactIds),
+    ]),
+    ...content.projects.flatMap((item) => [
+      item.factId,
+      ...item.bullets.flatMap((bullet) => bullet.evidenceFactIds),
+    ]),
+    ...content.skillGroups.flatMap((group) =>
+      group.skills.map((skill) => skill.factId),
+    ),
+    ...content.education.map((item) => item.factId),
+    ...content.courses.map((item) => item.factId),
+    ...content.languages.map((item) => item.factId),
+  ]
+    .filter((id, index, ids) => ids.indexOf(id) === index)
+    .sort();
+}
