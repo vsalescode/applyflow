@@ -57,6 +57,12 @@ export default async function JobDetailsPage({
       {feedback.erro === "pipeline" && (
         <Notice tone="error">Esta mudança de etapa não é permitida.</Notice>
       )}
+      {feedback.sucesso === "preparacao" && (
+        <Notice tone="success">Conteúdo da candidatura preparado.</Notice>
+      )}
+      {feedback.erro === "preparacao" && (
+        <Notice tone="error">Não foi possível preparar a candidatura.</Notice>
+      )}
 
       <header className="mt-6 rounded-2xl border bg-white p-6">
         <div className="flex flex-wrap items-start justify-between gap-5">
@@ -165,6 +171,41 @@ export default async function JobDetailsPage({
         ) : (
           <p className="mt-5 text-sm text-slate-500">
             Nenhuma mudança registrada.
+          </p>
+        )}
+      </Section>
+
+      <Section title="Preparar candidatura">
+        <p className="text-sm text-slate-600">
+          Gere conteúdo estruturado usando somente os fatos profissionais
+          confirmados. O documento final será criado nas próximas etapas.
+        </p>
+        <form
+          action={`/api/jobs/${job.id}/application/prepare`}
+          className="mt-4 flex flex-wrap gap-2"
+          method="post"
+        >
+          <select
+            className="rounded-lg border bg-white px-3 py-2 text-sm"
+            name="language"
+          >
+            <option value="AUTO">Detectar automaticamente</option>
+            <option value="PT_BR">Português do Brasil</option>
+            <option value="EN">Inglês</option>
+          </select>
+          <button className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">
+            {job.application?.preparation
+              ? "Gerar novamente"
+              : "Preparar candidatura"}
+          </button>
+        </form>
+        {job.application?.preparation && (
+          <p className="mt-4 text-sm text-emerald-700">
+            Conteúdo preparado em{" "}
+            {job.application.preparation.language === "PT_BR"
+              ? "português"
+              : "inglês"}{" "}
+            · {job.application.preparation.updatedAt.toLocaleString("pt-BR")}
           </p>
         )}
       </Section>
