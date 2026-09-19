@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import {
+  assertEquivalentResumeFacts,
   createResumePdfFileName,
   parseResumeContent,
   type ResumeContent,
@@ -102,5 +103,18 @@ describe("ResumeContent", () => {
       "CV_ANA_SOUZA_LIMA.pdf",
     );
     expect(() => createResumePdfFileName("---")).toThrow("Nome inválido");
+  });
+
+  it("exige que versões em idiomas diferentes usem os mesmos fatos", () => {
+    const english = { ...completeResume, language: "EN" as const };
+    expect(() =>
+      assertEquivalentResumeFacts(completeResume, english),
+    ).not.toThrow();
+    expect(() =>
+      assertEquivalentResumeFacts(completeResume, {
+        ...english,
+        experiences: [],
+      }),
+    ).toThrow("mesmos fatos");
   });
 });

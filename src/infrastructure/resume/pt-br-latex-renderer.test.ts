@@ -105,7 +105,7 @@ describe("PT-BR LaTeX renderer", () => {
       renderPtBrResume(template, { ...content, language: "EN" }),
     ).toThrow("exige conteúdo PT_BR");
     expect(() => renderPtBrResume("\\begin{document}", content)).toThrow(
-      "Template PT-BR inválido",
+      "Template PT_BR inválido",
     );
   });
 
