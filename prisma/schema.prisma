@@ -96,6 +96,17 @@ enum MatchClassification {
   COLD
 }
 
+enum ApplicationStatus {
+  FOUND
+  INTERESTING
+  RESUME_PREPARED
+  APPLIED
+  INTERVIEW
+  OFFER
+  REJECTED
+  ARCHIVED
+}
+
 model CandidateProfile {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @unique @map("user_id") @db.Uuid
@@ -176,10 +187,36 @@ model Job {
   profile         CandidateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   occurrences     JobOccurrence[]
   match           JobMatch?
+  application     Application?
 
   @@unique([profileId, fingerprint])
   @@index([profileId, discoveredAt])
   @@map("jobs")
+}
+
+model Application {
+  id        String                   @id @default(uuid()) @db.Uuid
+  jobId     String                   @unique @map("job_id") @db.Uuid
+  status    ApplicationStatus        @default(FOUND)
+  createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+  job       Job                      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  history   ApplicationStatusEvent[]
+
+  @@index([status, updatedAt])
+  @@map("applications")
+}
+
+model ApplicationStatusEvent {
+  id            String            @id @default(uuid()) @db.Uuid
+  applicationId String            @map("application_id") @db.Uuid
+  fromStatus    ApplicationStatus @map("from_status")
+  toStatus      ApplicationStatus @map("to_status")
+  changedAt     DateTime          @map("changed_at") @db.Timestamptz(3)
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, changedAt])
+  @@map("application_status_events")
 }
 
 model JobMatch {

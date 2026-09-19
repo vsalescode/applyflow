@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getUserBySessionToken } from "@/application/auth/auth-service";
 import { getOpportunityDashboard } from "@/application/dashboard/opportunity-dashboard-service";
+import { applicationStatusLabels } from "@/domain/application/application-pipeline";
 import { readSessionCookie } from "@/infrastructure/auth/cookie";
 
 const categories = [
@@ -163,6 +164,13 @@ export default async function DashboardPage({
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
+                  <span className="rounded-full bg-violet-50 px-2 py-1 font-medium text-violet-700">
+                    {
+                      applicationStatusLabels[
+                        job.application?.status ?? "FOUND"
+                      ]
+                    }
+                  </span>
                   <span className="rounded-full bg-slate-100 px-2 py-1">
                     {workModes[job.workArrangement]}
                   </span>

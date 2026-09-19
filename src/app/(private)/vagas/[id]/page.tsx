@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 
 import { getUserBySessionToken } from "@/application/auth/auth-service";
 import { getJobDetails } from "@/application/search/job-details-service";
+import {
+  applicationStatusLabels,
+  getAllowedApplicationTransitions,
+} from "@/domain/application/application-pipeline";
 import { readSessionCookie } from "@/infrastructure/auth/cookie";
 
 const workModes = {
@@ -31,6 +35,7 @@ export default async function JobDetailsPage({
   if (!job) notFound();
   const feedback = await searchParams;
   const latestOccurrence = job.occurrences[0];
+  const applicationStatus = job.application?.status ?? "FOUND";
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 py-10">
@@ -45,6 +50,12 @@ export default async function JobDetailsPage({
       )}
       {feedback.erro === "analise" && (
         <Notice tone="error">Não foi possível analisar esta vaga.</Notice>
+      )}
+      {feedback.sucesso === "pipeline" && (
+        <Notice tone="success">Etapa da candidatura atualizada.</Notice>
+      )}
+      {feedback.erro === "pipeline" && (
+        <Notice tone="error">Esta mudança de etapa não é permitida.</Notice>
       )}
 
       <header className="mt-6 rounded-2xl border bg-white p-6">
@@ -104,6 +115,59 @@ export default async function JobDetailsPage({
           )}
         </div>
       </header>
+
+      <Section title="Pipeline da candidatura">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs text-slate-500">Etapa atual</p>
+            <p className="mt-1 font-semibold">
+              {applicationStatusLabels[applicationStatus]}
+            </p>
+          </div>
+          {getAllowedApplicationTransitions(applicationStatus).length > 0 && (
+            <form
+              action={`/api/jobs/${job.id}/application/status`}
+              className="flex flex-wrap gap-2"
+              method="post"
+            >
+              <select
+                className="rounded-lg border bg-white px-3 py-2 text-sm"
+                name="status"
+              >
+                {getAllowedApplicationTransitions(applicationStatus).map(
+                  (status) => (
+                    <option key={status} value={status}>
+                      {applicationStatusLabels[status]}
+                    </option>
+                  ),
+                )}
+              </select>
+              <button className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                Atualizar etapa
+              </button>
+            </form>
+          )}
+        </div>
+        {job.application?.history.length ? (
+          <ol className="mt-6 space-y-3 border-l border-slate-200 pl-4">
+            {job.application.history.map((event) => (
+              <li className="text-sm" key={event.id}>
+                <p>
+                  {applicationStatusLabels[event.fromStatus]} →{" "}
+                  <strong>{applicationStatusLabels[event.toStatus]}</strong>
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {event.changedAt.toLocaleString("pt-BR")}
+                </p>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-5 text-sm text-slate-500">
+            Nenhuma mudança registrada.
+          </p>
+        )}
+      </Section>
 
       <Section title="Descrição">
         <p className="text-sm leading-7 whitespace-pre-wrap text-slate-700">

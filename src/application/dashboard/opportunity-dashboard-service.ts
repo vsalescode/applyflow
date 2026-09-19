@@ -48,6 +48,7 @@ export async function getOpportunityDashboard(userId: string, input: unknown) {
       },
       include: {
         match: true,
+        application: true,
         occurrences: {
           orderBy: { discoveredAt: "desc" },
           take: 1,
