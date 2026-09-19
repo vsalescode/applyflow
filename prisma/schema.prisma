@@ -107,6 +107,11 @@ enum ApplicationStatus {
   ARCHIVED
 }
 
+enum ResumeLanguage {
+  PT_BR
+  EN
+}
+
 model CandidateProfile {
   id                String             @id @default(uuid()) @db.Uuid
   userId            String             @unique @map("user_id") @db.Uuid
@@ -195,16 +200,31 @@ model Job {
 }
 
 model Application {
-  id        String                   @id @default(uuid()) @db.Uuid
-  jobId     String                   @unique @map("job_id") @db.Uuid
-  status    ApplicationStatus        @default(FOUND)
-  createdAt DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
-  job       Job                      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  history   ApplicationStatusEvent[]
+  id          String                   @id @default(uuid()) @db.Uuid
+  jobId       String                   @unique @map("job_id") @db.Uuid
+  status      ApplicationStatus        @default(FOUND)
+  createdAt   DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+  job         Job                      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  history     ApplicationStatusEvent[]
+  preparation ApplicationPreparation?
 
   @@index([status, updatedAt])
   @@map("applications")
+}
+
+model ApplicationPreparation {
+  id            String         @id @default(uuid()) @db.Uuid
+  applicationId String         @unique @map("application_id") @db.Uuid
+  language      ResumeLanguage
+  content       Json
+  aiModel       String         @map("ai_model") @db.VarChar(160)
+  aiRequestId   String?        @map("ai_request_id") @db.VarChar(255)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  application   Application    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_preparations")
 }
 
 model ApplicationStatusEvent {

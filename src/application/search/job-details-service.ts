@@ -8,7 +8,10 @@ export async function getJobDetails(userId: string, jobId: string) {
     include: {
       match: true,
       application: {
-        include: { history: { orderBy: { changedAt: "desc" } } },
+        include: {
+          history: { orderBy: { changedAt: "desc" } },
+          preparation: true,
+        },
       },
       occurrences: {
         orderBy: { discoveredAt: "desc" },

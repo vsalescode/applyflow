@@ -23,7 +23,7 @@ export const applicationStatusLabels: Record<ApplicationStatus, string> = {
 };
 
 const transitions: Record<ApplicationStatus, readonly ApplicationStatus[]> = {
-  FOUND: ["INTERESTING", "APPLIED", "ARCHIVED"],
+  FOUND: ["INTERESTING", "RESUME_PREPARED", "APPLIED", "ARCHIVED"],
   INTERESTING: ["FOUND", "RESUME_PREPARED", "APPLIED", "ARCHIVED"],
   RESUME_PREPARED: ["INTERESTING", "APPLIED", "ARCHIVED"],
   APPLIED: ["INTERVIEW", "REJECTED", "ARCHIVED"],
